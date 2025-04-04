@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import 'package:reviewall_mobile/resenha_app.dart';
+import 'package:reviewall_mobile/reviewall_app.dart';
 
 
 class ReviewListScaffold extends StatelessWidget {
