@@ -4,10 +4,7 @@ import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-const primaryColor = Color.fromARGB(255, 102, 255, 82);
-const primaryColorLight = Color.fromARGB(255, 102, 255, 82);
-const secondaryColor = Color.fromARGB(255, 255, 82, 82);
-
+import 'package:reviewall_mobile/resenha_app.dart';
 
 class MediaListScaffold extends StatelessWidget {
   const MediaListScaffold({super.key});
@@ -36,7 +33,7 @@ class MediaListScaffold extends StatelessWidget {
 }
 
 Future<dynamic> getMedias() async {
-  var url = Uri.parse('https://67e6f0a56530dbd31111f8e2.mockapi.io/resenhal/media');
+  var url = Uri.parse('https://67e6f0a56530dbd31111f8e2.mockapi.io/reviewall/media');
 
   var response = await Future.delayed(
     Duration(seconds: 1),

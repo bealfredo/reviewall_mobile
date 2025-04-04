@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:reviewall_mobile/media.dart';
+import 'package:reviewall_mobile/review.dart';
 
 const primaryColor = Color.fromARGB(255, 102, 255, 82);
 const primaryColorLight = Color.fromARGB(255, 102, 255, 82);
 const secondaryColor = Color.fromARGB(255, 255, 82, 82);
+final secondaryColorLight = Colors.redAccent[100];
 
-class ReviewApp extends StatelessWidget {
-  const ReviewApp({super.key});
+class ReviewTab extends StatelessWidget {
+  const ReviewTab({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
     home: ReviewListScaffold(),
+  );
+  }
+}
+
+class MediaTab extends StatelessWidget {
+  const MediaTab({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+    home: MediaListScaffold(),
   );
   }
 }
@@ -481,340 +491,340 @@ class ReviewApp extends StatelessWidget {
 //   }
 // }
 
-class ReviewListScaffold extends StatelessWidget {
-  const ReviewListScaffold({super.key});
+// class ReviewListScaffold extends StatelessWidget {
+//   const ReviewListScaffold({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Resenhas de Filmes'),
-        backgroundColor: Colors.redAccent,        
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Resenhas de Filmes'),
+//         backgroundColor: Colors.redAccent,        
         
-      ),
-      body: ListaResenhas(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => FormularioAddResenhaScaffold()),
-          );
-        },
-        backgroundColor: Colors.redAccent[100],
-        child: Icon(Icons.add),
-      ),
-    );
-  }
-}
+//       ),
+//       body: ListaResenhas(),
+//       floatingActionButton: FloatingActionButton(
+//         onPressed: () {
+//           Navigator.push(
+//             context,
+//             MaterialPageRoute(builder: (context) => FormularioAddResenhaScaffold()),
+//           );
+//         },
+//         backgroundColor: Colors.redAccent[100],
+//         child: Icon(Icons.add),
+//       ),
+//     );
+//   }
+// }
 
-Future<dynamic> getResenhas() async {
-  var url = Uri.parse('https://67e6f0a56530dbd31111f8e2.mockapi.io/resenhal/resenha');
+// Future<dynamic> getResenhas() async {
+//   var url = Uri.parse('https://67e6f0a56530dbd31111f8e2.mockapi.io/resenhal/resenha');
 
-  // var response = await http.get(url);
-  var response = await Future.delayed(
-    Duration(seconds: 1),
-    () => http.Response(
-      json.encode([
-        {
-          "id": "1",
-          "titulo": "Interestelar",
-          "createdAt": "2024-03-28T14:30:00Z",
-          "genero": ["Ficção Científica", "Drama", "Aventura"],
-          "diretor": "Christopher Nolan",
-          "sinopse": "Um grupo de astronautas viaja através de um buraco de minhoca em busca de um novo lar para a humanidade.",
-          "usuario": "joao123",
-          "nota": 9.5,
-          "comentario": "Filme incrível, com uma trilha sonora maravilhosa!"
-        },
-        {
-          "id": "2",
-          "titulo": "A Origem",
-          "createdAt": "2024-03-29T14:30:00Z",
-          "genero": ["Ficção Científica", "Ação", "Mistério"],
-          "diretor": "Christopher Nolan",
-          "sinopse": "Um ladrão que rouba segredos corporativos através do uso de tecnologia de compartilhamento de sonhos é oferecido a chance de apagar seu passado como pagamento por uma tarefa considerada impossível.",
-          "usuario": "maria456",
-          "nota": 8.8,
-          "comentario": "Uma trama complexa, mas fascinante!"
-        }
-      ]),
-      200,
-    ),
-  );
+//   // var response = await http.get(url);
+//   var response = await Future.delayed(
+//     Duration(seconds: 1),
+//     () => http.Response(
+//       json.encode([
+//         {
+//           "id": "1",
+//           "titulo": "Interestelar",
+//           "createdAt": "2024-03-28T14:30:00Z",
+//           "genero": ["Ficção Científica", "Drama", "Aventura"],
+//           "diretor": "Christopher Nolan",
+//           "sinopse": "Um grupo de astronautas viaja através de um buraco de minhoca em busca de um novo lar para a humanidade.",
+//           "usuario": "joao123",
+//           "nota": 9.5,
+//           "comentario": "Filme incrível, com uma trilha sonora maravilhosa!"
+//         },
+//         {
+//           "id": "2",
+//           "titulo": "A Origem",
+//           "createdAt": "2024-03-29T14:30:00Z",
+//           "genero": ["Ficção Científica", "Ação", "Mistério"],
+//           "diretor": "Christopher Nolan",
+//           "sinopse": "Um ladrão que rouba segredos corporativos através do uso de tecnologia de compartilhamento de sonhos é oferecido a chance de apagar seu passado como pagamento por uma tarefa considerada impossível.",
+//           "usuario": "maria456",
+//           "nota": 8.8,
+//           "comentario": "Uma trama complexa, mas fascinante!"
+//         }
+//       ]),
+//       200,
+//     ),
+//   );
 
-  if (response.statusCode == 200) {
-    var data = json.decode(response.body);
-    List<Resenha> resenhas = (data as List).map((item) => Resenha.fromJson(item)).toList();
-    return resenhas;
-  } else {
-    print("Erro ao fazer a requisição: ${response.statusCode}");
-  }
-}
+//   if (response.statusCode == 200) {
+//     var data = json.decode(response.body);
+//     List<Resenha> resenhas = (data as List).map((item) => Resenha.fromJson(item)).toList();
+//     return resenhas;
+//   } else {
+//     print("Erro ao fazer a requisição: ${response.statusCode}");
+//   }
+// }
 
-class ListaResenhas extends StatelessWidget {
-  const ListaResenhas({super.key});
+// class ListaResenhas extends StatelessWidget {
+//   const ListaResenhas({super.key});
 
-  // getting data from API
-  Future<List<Resenha>> fetchResenhas() async {
-  try {
-    return await getResenhas();
-  } catch (e) {
-    print("Erro ao buscar resenhas: $e");
-    return [];
-  }
-}
+//   // getting data from API
+//   Future<List<Resenha>> fetchResenhas() async {
+//   try {
+//     return await getResenhas();
+//   } catch (e) {
+//     print("Erro ao buscar resenhas: $e");
+//     return [];
+//   }
+// }
 
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<Resenha>>(
-      future: fetchResenhas(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Erro ao carregar resenhas'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('Nenhuma resenha encontrada'));
-        } else {
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              return ItemListaResenhas(snapshot.data![index]);
-            },
-          );
-        }
-      },
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return FutureBuilder<List<Resenha>>(
+//       future: fetchResenhas(),
+//       builder: (context, snapshot) {
+//         if (snapshot.connectionState == ConnectionState.waiting) {
+//           return Center(child: CircularProgressIndicator());
+//         } else if (snapshot.hasError) {
+//           return Center(child: Text('Erro ao carregar resenhas'));
+//         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+//           return Center(child: Text('Nenhuma resenha encontrada'));
+//         } else {
+//           return ListView.builder(
+//             itemCount: snapshot.data!.length,
+//             itemBuilder: (context, index) {
+//               return ItemListaResenhas(snapshot.data![index]);
+//             },
+//           );
+//         }
+//       },
+//     );
+//   }
+// }
 
-class ItemListaResenhas extends StatelessWidget {
-  final Resenha resenha;
+// class ItemListaResenhas extends StatelessWidget {
+//   final Resenha resenha;
 
-  const ItemListaResenhas(this.resenha, {super.key});
+//   const ItemListaResenhas(this.resenha, {super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        title: Text(resenha.titulo),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Nota: ${resenha.nota.toStringAsFixed(1)}'),
-            Text('Comentário: ${resenha.comentario}'),
-          ],
-        ),
-        leading: Icon(Icons.movie),
-        trailing: IconButton(
-          icon: Icon(Icons.delete),
-          onPressed: () {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Card(
+//       child: ListTile(
+//         title: Text(resenha.titulo),
+//         subtitle: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Text('Nota: ${resenha.nota.toStringAsFixed(1)}'),
+//             Text('Comentário: ${resenha.comentario}'),
+//           ],
+//         ),
+//         leading: Icon(Icons.movie),
+//         trailing: IconButton(
+//           icon: Icon(Icons.delete),
+//           onPressed: () {
             
-          },
-        ),
-      ),
-    );
-  }
-}
+//           },
+//         ),
+//       ),
+//     );
+//   }
+// }
 
-class Resenha {
-  String id;
-  DateTime createdAt;
-  String titulo;
-  // DateTime anoLancamento;
-  List<String> genero;
-  String diretor;
-  String sinopse;
-  String usuario;
-  double nota;
-  String comentario;
+// class Resenha {
+//   String id;
+//   DateTime createdAt;
+//   String titulo;
+//   // DateTime anoLancamento;
+//   List<String> genero;
+//   String diretor;
+//   String sinopse;
+//   String usuario;
+//   double nota;
+//   String comentario;
 
-  Resenha(
-    this.id,
-    this.titulo,
-    this.createdAt,
-    // this.anoLancamento,
-    this.genero,
-    this.diretor,
-    this.sinopse,
-    this.usuario,
-    this.nota,
-    this.comentario,
-  );
+//   Resenha(
+//     this.id,
+//     this.titulo,
+//     this.createdAt,
+//     // this.anoLancamento,
+//     this.genero,
+//     this.diretor,
+//     this.sinopse,
+//     this.usuario,
+//     this.nota,
+//     this.comentario,
+//   );
 
-  factory Resenha.fromJson(Map<String, dynamic> json) {
-    return Resenha(
-      json['id'],
-      json['titulo'],
-      DateTime.parse(json['createdAt']),
-      List<String>.from(json['genero']),
-      json['diretor'],
-      json['sinopse'],
-      json['usuario'],
-      json['nota'].toDouble(),
-      json['comentario'],
-    );
-  }
-}
+//   factory Resenha.fromJson(Map<String, dynamic> json) {
+//     return Resenha(
+//       json['id'],
+//       json['titulo'],
+//       DateTime.parse(json['createdAt']),
+//       List<String>.from(json['genero']),
+//       json['diretor'],
+//       json['sinopse'],
+//       json['usuario'],
+//       json['nota'].toDouble(),
+//       json['comentario'],
+//     );
+//   }
+// }
 
-class FormularioAddResenhaScaffold extends StatelessWidget {
-  const FormularioAddResenhaScaffold({super.key});
+// class FormularioAddResenhaScaffold extends StatelessWidget {
+//   const FormularioAddResenhaScaffold({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Adicionar Resenha'),
-        backgroundColor: Colors.redAccent,        
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Adicionar Resenha'),
+//         backgroundColor: Colors.redAccent,        
         
-      ),
-      body: Column(
-        children: [
-            Padding(
-              padding: EdgeInsets.all(10.0),
-              child: Column(
-                children: [
-                  TextField(
-                    decoration: InputDecoration(
-                    labelText: 'Título',
-                    hintText: 'Ex: Interestelar',
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  TextField(
-                    decoration: InputDecoration(
-                    labelText: 'Diretor',
-                    hintText: 'Ex: Christopher Nolan',
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  // DropdownButtonFormField<String>(
-                  //   decoration: InputDecoration(
-                  //     labelText: 'Gênero',
-                  //     hintText: 'Selecione',
-                  //   ),
-                  //   items: generos.map((String value) {
-                  //     return DropdownMenuItem<String>(
-                  //     value: value,
-                  //     child: Text(value),
-                  //     );
-                  //   }).toList(),
-                  //   onChanged: (newValue) {
-                  //     // Lógica ao mudar o gênero
-                  //   },
-                  // ),
-                  SizedBox(height: 10),
-                  TextField(
-                    decoration: InputDecoration(
-                    labelText: 'Sinopse',
-                    hintText: 'Informe a sinopse do filme',
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  TextField(
-                    decoration: InputDecoration(
-                    labelText: 'Usuário',
-                    hintText: 'Informe seu nome de usuário',
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                    TextFormField(
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
-                    ],
-                    decoration: InputDecoration(
-                      labelText: 'Nota',
-                      hintText: 'Informe a nota do filme (máximo 10)',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                      return 'Informe a nota';
-                      }
-                      final nota = double.tryParse(value);
-                      if (nota == null) {
-                      return 'Valor inválido';
-                      }
-                      if (nota > 10) {
-                      return 'A nota deve ser no máximo 10';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextField(
-                    decoration: InputDecoration(
-                    labelText: 'Comentário',
-                    hintText: 'Informe sua opinião sobre o filme',
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime(2100),
-                      );
-                      // Adicione a lógica para atualizar o estado com a data selecionada
-                    },
-                    child: AbsorbPointer(
-                      child: TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Data de Lançamento',
-                        hintText: 'Selecione a data',
-                      ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ElevatedButton(
-            onPressed: (){},
-            child: Text('Salvar'),
-          )
-        ],
-      ),
-    );
-  }
-}
+//       ),
+//       body: Column(
+//         children: [
+//             Padding(
+//               padding: EdgeInsets.all(10.0),
+//               child: Column(
+//                 children: [
+//                   TextField(
+//                     decoration: InputDecoration(
+//                     labelText: 'Título',
+//                     hintText: 'Ex: Interestelar',
+//                     ),
+//                   ),
+//                   SizedBox(height: 10),
+//                   TextField(
+//                     decoration: InputDecoration(
+//                     labelText: 'Diretor',
+//                     hintText: 'Ex: Christopher Nolan',
+//                     ),
+//                   ),
+//                   SizedBox(height: 10),
+//                   // DropdownButtonFormField<String>(
+//                   //   decoration: InputDecoration(
+//                   //     labelText: 'Gênero',
+//                   //     hintText: 'Selecione',
+//                   //   ),
+//                   //   items: generos.map((String value) {
+//                   //     return DropdownMenuItem<String>(
+//                   //     value: value,
+//                   //     child: Text(value),
+//                   //     );
+//                   //   }).toList(),
+//                   //   onChanged: (newValue) {
+//                   //     // Lógica ao mudar o gênero
+//                   //   },
+//                   // ),
+//                   SizedBox(height: 10),
+//                   TextField(
+//                     decoration: InputDecoration(
+//                     labelText: 'Sinopse',
+//                     hintText: 'Informe a sinopse do filme',
+//                     ),
+//                   ),
+//                   SizedBox(height: 10),
+//                   TextField(
+//                     decoration: InputDecoration(
+//                     labelText: 'Usuário',
+//                     hintText: 'Informe seu nome de usuário',
+//                     ),
+//                   ),
+//                   SizedBox(height: 10),
+//                     TextFormField(
+//                     keyboardType: TextInputType.numberWithOptions(decimal: true),
+//                     inputFormatters: [
+//                       FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+//                     ],
+//                     decoration: InputDecoration(
+//                       labelText: 'Nota',
+//                       hintText: 'Informe a nota do filme (máximo 10)',
+//                     ),
+//                     validator: (value) {
+//                       if (value == null || value.isEmpty) {
+//                       return 'Informe a nota';
+//                       }
+//                       final nota = double.tryParse(value);
+//                       if (nota == null) {
+//                       return 'Valor inválido';
+//                       }
+//                       if (nota > 10) {
+//                       return 'A nota deve ser no máximo 10';
+//                       }
+//                       return null;
+//                     },
+//                   ),
+//                   TextField(
+//                     decoration: InputDecoration(
+//                     labelText: 'Comentário',
+//                     hintText: 'Informe sua opinião sobre o filme',
+//                     ),
+//                   ),
+//                   GestureDetector(
+//                     onTap: () async {
+//                       await showDatePicker(
+//                       context: context,
+//                       initialDate: DateTime.now(),
+//                       firstDate: DateTime(1900),
+//                       lastDate: DateTime(2100),
+//                       );
+//                       // Adicione a lógica para atualizar o estado com a data selecionada
+//                     },
+//                     child: AbsorbPointer(
+//                       child: TextField(
+//                       decoration: InputDecoration(
+//                         labelText: 'Data de Lançamento',
+//                         hintText: 'Selecione a data',
+//                       ),
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ElevatedButton(
+//             onPressed: (){},
+//             child: Text('Salvar'),
+//           )
+//         ],
+//       ),
+//     );
+//   }
+// }
 
-class Review {
-  String id;
-  DateTime createdAt;
-  String user; // Renomeado de "usuario"
-  double rating; // Renomeado de "nota"
-  String comment; // Renomeado de "comentario"
-  String mediaId; // Renomeado de "midiaId"
+// class Review {
+//   String id;
+//   DateTime createdAt;
+//   String user; // Renomeado de "usuario"
+//   double rating; // Renomeado de "nota"
+//   String comment; // Renomeado de "comentario"
+//   String mediaId; // Renomeado de "midiaId"
 
-  Review({
-    required this.id,
-    required this.createdAt,
-    required this.user,
-    required this.rating,
-    required this.comment,
-    required this.mediaId,
-  });
+//   Review({
+//     required this.id,
+//     required this.createdAt,
+//     required this.user,
+//     required this.rating,
+//     required this.comment,
+//     required this.mediaId,
+//   });
 
-  factory Review.fromJson(Map<String, dynamic> json) {
-    return Review(
-      id: json['id'],
-      createdAt: DateTime.parse(json['createdAt']),
-      user: json['user'],
-      rating: json['rating'].toDouble(),
-      comment: json['comment'],
-      mediaId: json['mediaId'],
-    );
-  }
+//   factory Review.fromJson(Map<String, dynamic> json) {
+//     return Review(
+//       id: json['id'],
+//       createdAt: DateTime.parse(json['createdAt']),
+//       user: json['user'],
+//       rating: json['rating'].toDouble(),
+//       comment: json['comment'],
+//       mediaId: json['mediaId'],
+//     );
+//   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'createdAt': createdAt.toIso8601String(),
-      'user': user,
-      'rating': rating,
-      'comment': comment,
-      'mediaId': mediaId,
-    };
-  }
-}
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'id': id,
+//       'createdAt': createdAt.toIso8601String(),
+//       'user': user,
+//       'rating': rating,
+//       'comment': comment,
+//       'mediaId': mediaId,
+//     };
+//   }
+// }

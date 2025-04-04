@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reviewall_mobile/media.dart';
 import 'package:reviewall_mobile/resenha_app.dart';
 
 void main() {
@@ -59,13 +60,13 @@ class _NavigationExampleState extends State<NavigationExample> {
 
           NavigationDestination(
             icon: Badge(child: Icon(Icons.star)),
-            label: 'Resenhas de filmes',
+            label: 'Resenhas',
           ),
 
-          NavigationDestination(
-            icon: Badge(child: Icon(Icons.add)),
-            label: 'Add'
-          ),
+          // NavigationDestination(
+          //   icon: Badge(child: Icon(Icons.add)),
+          //   label: 'Add'
+          // ),
         ],
       ),
       body:
@@ -80,13 +81,13 @@ class _NavigationExampleState extends State<NavigationExample> {
             ),
 
             /// Mídias page
-            MediaListScaffold(),
+            MediaTab(),
 
             /// Resenhas de filmes page
-            ReviewApp(),
+            ReviewTab(),
 
             /// Add page
-            FormularioAddResenhaScaffold()
+            // FormularioAddResenhaScaffold()
           ][currentPageIndex],
     );
   }
