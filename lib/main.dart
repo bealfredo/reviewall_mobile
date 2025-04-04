@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:reviewall_mobile/media.dart';
-import 'package:reviewall_mobile/resenha_app.dart';
+import 'package:reviewall_mobile/reviewall_app.dart';
 
 void main() {
   runApp(NavigationBarApp());
