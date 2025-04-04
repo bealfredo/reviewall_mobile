@@ -1,9 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:reviewall_mobile/reviewall_app.dart';
 
 class MediaListScaffold extends StatelessWidget {
@@ -74,7 +72,7 @@ Future<dynamic> getMedias() async {
 }
 
 Future<http.Response> postMedia(Map<String, dynamic> media) async {
-  var url = Uri.parse('https://67e6f0a56530dbd31111f8e2.mockapi.io/resenhal/media');
+  var url = Uri.parse('https://67e6f0a56530dbd31111f8e2.mockapi.io/reviewall/media');
   var response = await http.post(
     url,
     body: json.encode(media),
@@ -225,6 +223,20 @@ final List<String> sugestGeneros = [
   'Outro'
 ];
 
+// Lista de tipos de mídia
+final List<String> sugestTypes = [
+  'Filme',
+  'Série',
+  'Documentário',
+  'Anime',
+  'Desenho animado',
+  'Game',
+  'Livro',
+  'Podcast',
+  'Música',
+  'Outro'
+];
+
 
 class FormAddMediaScaffold extends StatefulWidget {
   const FormAddMediaScaffold({super.key});
@@ -237,25 +249,26 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
   final _formKey = GlobalKey<FormState>();
   
   // Controladores para os campos de texto
-  final _tituloController = TextEditingController();
-  final _criadorController = TextEditingController();
-  final _tipoController = TextEditingController();
-  final _generoController = TextEditingController();
-  final _sinopseController = TextEditingController();
-  final _dataLancamentoController = TextEditingController();
+  final _titleController = TextEditingController();
+  final _creatorController = TextEditingController();
+  final _typeController = TextEditingController();
+  final _genreController = TextEditingController();
+  final _synopsisController = TextEditingController();
+  final _releaseDateController = TextEditingController();
   
+  List<String> _generosSelecionados = [];
   DateTime? _dataLancamento;
   bool _isLoading = false;
 
   @override
   void dispose() {
     // Liberar recursos dos controladores
-    _tituloController.dispose();
-    _criadorController.dispose();
-    _tipoController.dispose();
-    _generoController.dispose();
-    _sinopseController.dispose();
-    _dataLancamentoController.dispose();
+    _titleController.dispose();
+    _creatorController.dispose();
+    _typeController.dispose();
+    _genreController.dispose();
+    _synopsisController.dispose();
+    _releaseDateController.dispose();
     super.dispose();
   }
 
@@ -267,11 +280,11 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
 
       try {
         final midia = {
-          'title': _tituloController.text,
-          'creator': _criadorController.text,
-          'type': _tipoController.text,
-          'genre': _generoController.text,
-          'synopsis': _sinopseController.text,
+          'title': _titleController.text,
+          'creator': _creatorController.text,
+          'type': _typeController.text,
+          'genre': _generosSelecionados, // Envia a lista de gêneros
+          'synopsis': _synopsisController.text,
           'releaseDate': _dataLancamento!.toIso8601String(),
           'createdAt': DateTime.now().toIso8601String(),
         };
@@ -328,7 +341,7 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     TextFormField(
-                      controller: _tituloController,
+                      controller: _titleController,
                       decoration: InputDecoration(
                         labelText: 'Título',
                         hintText: 'Ex: Interestelar',
@@ -344,7 +357,7 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
                     SizedBox(height: 16),
                     
                     TextFormField(
-                      controller: _criadorController,
+                      controller: _creatorController,
                       decoration: InputDecoration(
                         labelText: 'Criador',
                         hintText: 'Ex: Christopher Nolan',
@@ -359,13 +372,24 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
                     ),
                     SizedBox(height: 16),
                     
-                    TextFormField(
-                      controller: _tipoController,
+                    DropdownButtonFormField<String>(
+                      value: _typeController.text.isEmpty ? null : _typeController.text,
                       decoration: InputDecoration(
                         labelText: 'Tipo',
-                        hintText: 'Ex: Filme',
+                        hintText: 'Selecione o tipo',
                         border: OutlineInputBorder(),
                       ),
+                      items: sugestTypes.map((String tipo) {
+                        return DropdownMenuItem<String>(
+                          value: tipo,
+                          child: Text(tipo),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _typeController.text = newValue!;
+                        });
+                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Informe o tipo';
@@ -375,24 +399,74 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
                     ),
                     SizedBox(height: 16),
                     
-                    TextFormField(
-                      controller: _generoController,
-                      decoration: InputDecoration(
-                        labelText: 'Gênero',
-                        hintText: 'Ex: Ficção Científica',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Informe o gênero';
-                        }
-                        return null;
+                    GestureDetector(
+                      onTap: () async {
+                        await showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return StatefulBuilder(
+                              builder: (context, setDialogState) {
+                                return AlertDialog(
+                                  title: Text('Selecione os Gêneros'),
+                                  content: SingleChildScrollView(
+                                    child: Column(
+                                      children: sugestGeneros.map((String genero) {
+                                        return CheckboxListTile(
+                                          title: Text(genero),
+                                          value: _generosSelecionados.contains(genero),
+                                          onChanged: (bool? value) {
+                                            setDialogState(() {
+                                              // Atualiza a lista de gêneros selecionados
+                                              if (value == true) {
+                                                _generosSelecionados.add(genero);
+                                              } else {
+                                                _generosSelecionados.remove(genero);
+                                              }
+                                              
+                                              // Atualiza o texto do campo em tempo real
+                                              _genreController.text = _generosSelecionados.join(', ');
+                                            });
+                                          },
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        // Não precisa mais atualizar o controlador aqui, já foi atualizado no onChanged
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        );
                       },
+                      child: AbsorbPointer(
+                        child: TextFormField(
+                          controller: _genreController, // Usa o controlador existente
+                          decoration: InputDecoration(
+                            labelText: 'Gêneros',
+                            hintText: 'Selecione os gêneros',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (_generosSelecionados.isEmpty) {
+                              return 'Selecione pelo menos um gênero';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
                     ),
                     SizedBox(height: 16),
                     
                     TextFormField(
-                      controller: _sinopseController,
+                      controller: _synopsisController,
                       decoration: InputDecoration(
                         labelText: 'Sinopse',
                         hintText: 'Informe a sinopse do filme',
@@ -420,7 +494,7 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
                         if (selectedDate != null) {
                           setState(() {
                             _dataLancamento = selectedDate;
-                            _dataLancamentoController.text = 
+                            _releaseDateController.text = 
                                 "${selectedDate.day.toString().padLeft(2, '0')}/"
                                 "${selectedDate.month.toString().padLeft(2, '0')}/"
                                 "${selectedDate.year}";
@@ -429,7 +503,7 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
                       },
                       child: AbsorbPointer(
                         child: TextFormField(
-                          controller: _dataLancamentoController,
+                          controller: _releaseDateController,
                           decoration: InputDecoration(
                             labelText: 'Data de Lançamento',
                             hintText: 'Selecione a data',
