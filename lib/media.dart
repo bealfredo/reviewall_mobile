@@ -4,27 +4,40 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:reviewall_mobile/reviewall_app.dart';
 
-class MediaListScaffold extends StatelessWidget {
+class MediaListScaffold extends StatefulWidget {
   const MediaListScaffold({super.key});
+
+  @override
+  State<MediaListScaffold> createState() => _MediaListScaffoldState();
+}
+
+class _MediaListScaffoldState extends State<MediaListScaffold> {
+  Key _listKey = UniqueKey();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lista de Mídias'),
-        backgroundColor: primaryColor,      
-        
+        title: const Text('Lista de Mídias'),
+        backgroundColor: primaryColor,
       ),
-      body: MediaList(),
+      body: MediaList(key: _listKey), 
       floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          Navigator.push(
+        onPressed: () async {
+          final result = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => FormAddMediaScaffold()),
+            MaterialPageRoute(builder: (context) => const FormAddMediaScaffold()),
           );
+
+          if (result == true) {
+            // Atualiza a tela após adicionar uma nova mídia
+            setState(() {
+              _listKey = UniqueKey();
+            });
+          }
         },
         backgroundColor: primaryColorLight,
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -33,106 +46,106 @@ class MediaListScaffold extends StatelessWidget {
 Future<dynamic> getMedias() async {
   var url = Uri.parse('$baseUrlApi/media');
 
-  // var response = await http.get(url);
+  var response = await http.get(url);
 
-  var response = await Future.delayed(
-    Duration(seconds: 1),
-    () => http.Response(
-      json.encode([
-        {
-          "id": "1",
-          "title": "Interestelar",
-          "createdAt": "2024-03-28T14:30:00Z",
-          "genre": "Ficção Científica",
-          "creator": "Christopher Nolan",
-          "type": "Filme",
-          "synopsis": "Um grupo de astronautas viaja através de um buraco de minhoca em busca de um novo lar para a humanidade.",
-          "releaseDate": "2014-01-01T00:00:00Z"
-        },
-        {
-          "id": "2",
-          "title": "A Origem",
-          "createdAt": "2024-03-29T14:30:00Z",
-          "genre": "Ficção Científica",
-          "creator": "Christopher Nolan",
-          "type": "Filme",
-          "synopsis": "Um ladrão que rouba segredos corporativos através do uso de tecnologia de compartilhamento de sonhos é oferecido a chance de apagar seu passado como pagamento por uma tarefa considerada impossível.",
-          "releaseDate": "2010-01-01T00:00:00Z"
-        },
-        {
-          "id": "3",
-          "title": "Breaking Bad",
-          "createdAt": "2024-03-30T14:30:00Z",
-          "genre": "Drama",
-          "creator": "Vince Gilligan",
-          "type": "Série",
-          "synopsis": "Um professor de química do ensino médio com câncer terminal começa a fabricar metanfetamina para garantir o futuro financeiro de sua família.",
-          "releaseDate": "2008-01-20T00:00:00Z"
-        },
-        {
-          "id": "4",
-          "title": "Planeta Terra",
-          "createdAt": "2024-03-31T14:30:00Z",
-          "genre": "Documentário",
-          "creator": "BBC",
-          "type": "Documentário",
-          "synopsis": "Uma série documental que explora a beleza e a diversidade do planeta Terra.",
-          "releaseDate": "2006-03-05T00:00:00Z"
-        },
-        {
-          "id": "5",
-          "title": "Naruto",
-          "createdAt": "2024-04-01T14:30:00Z",
-          "genre": "Anime",
-          "creator": "Masashi Kishimoto",
-          "type": "Anime",
-          "synopsis": "A história de um jovem ninja que busca reconhecimento e sonha em se tornar o Hokage, o líder de sua vila.",
-          "releaseDate": "2002-10-03T00:00:00Z"
-        },
-        {
-          "id": "6",
-          "title": "The Legend of Zelda: Breath of the Wild",
-          "createdAt": "2024-04-02T14:30:00Z",
-          "genre": "Aventura",
-          "creator": "Nintendo",
-          "type": "Game",
-          "synopsis": "Um jogo de ação e aventura em um vasto mundo aberto onde o jogador controla Link para salvar o reino de Hyrule.",
-          "releaseDate": "2017-03-03T00:00:00Z"
-        },
-        {
-          "id": "7",
-          "title": "1984",
-          "createdAt": "2024-04-03T14:30:00Z",
-          "genre": "Distopia",
-          "creator": "George Orwell",
-          "type": "Livro",
-          "synopsis": "Um romance distópico que explora os perigos do totalitarismo e da vigilância governamental.",
-          "releaseDate": "1949-06-08T00:00:00Z"
-        },
-        {
-          "id": "8",
-          "title": "Serial Killers",
-          "createdAt": "2024-04-04T14:30:00Z",
-          "genre": "Crime",
-          "creator": "Parcast Network",
-          "type": "Podcast",
-          "synopsis": "Um podcast que explora as histórias e as mentes de assassinos em série.",
-          "releaseDate": "2017-02-15T00:00:00Z"
-        },
-        {
-          "id": "9",
-          "title": "Bohemian Rhapsody",
-          "createdAt": "2024-04-05T14:30:00Z",
-          "genre": "Rock",
-          "creator": "Queen",
-          "type": "Música",
-          "synopsis": "Uma das músicas mais icônicas da banda Queen, conhecida por sua estrutura única e letras enigmáticas.",
-          "releaseDate": "1975-10-31T00:00:00Z"
-        }
-      ]),
-      200,
-    ),
-  );
+  // var response = await Future.delayed(
+  //   Duration(seconds: 1),
+  //   () => http.Response(
+  //     json.encode([
+  //       {
+  //         "id": "1",
+  //         "title": "Interestelar",
+  //         "createdAt": "2024-03-28T14:30:00Z",
+  //         "genre": "Ficção Científica",
+  //         "creator": "Christopher Nolan",
+  //         "type": "Filme",
+  //         "synopsis": "Um grupo de astronautas viaja através de um buraco de minhoca em busca de um novo lar para a humanidade.",
+  //         "releaseDate": "2014-01-01T00:00:00Z"
+  //       },
+  //       {
+  //         "id": "2",
+  //         "title": "A Origem",
+  //         "createdAt": "2024-03-29T14:30:00Z",
+  //         "genre": "Ficção Científica",
+  //         "creator": "Christopher Nolan",
+  //         "type": "Filme",
+  //         "synopsis": "Um ladrão que rouba segredos corporativos através do uso de tecnologia de compartilhamento de sonhos é oferecido a chance de apagar seu passado como pagamento por uma tarefa considerada impossível.",
+  //         "releaseDate": "2010-01-01T00:00:00Z"
+  //       },
+  //       {
+  //         "id": "3",
+  //         "title": "Breaking Bad",
+  //         "createdAt": "2024-03-30T14:30:00Z",
+  //         "genre": "Drama",
+  //         "creator": "Vince Gilligan",
+  //         "type": "Série",
+  //         "synopsis": "Um professor de química do ensino médio com câncer terminal começa a fabricar metanfetamina para garantir o futuro financeiro de sua família.",
+  //         "releaseDate": "2008-01-20T00:00:00Z"
+  //       },
+  //       {
+  //         "id": "4",
+  //         "title": "Planeta Terra",
+  //         "createdAt": "2024-03-31T14:30:00Z",
+  //         "genre": "Documentário",
+  //         "creator": "BBC",
+  //         "type": "Documentário",
+  //         "synopsis": "Uma série documental que explora a beleza e a diversidade do planeta Terra.",
+  //         "releaseDate": "2006-03-05T00:00:00Z"
+  //       },
+  //       {
+  //         "id": "5",
+  //         "title": "Naruto",
+  //         "createdAt": "2024-04-01T14:30:00Z",
+  //         "genre": "Anime",
+  //         "creator": "Masashi Kishimoto",
+  //         "type": "Anime",
+  //         "synopsis": "A história de um jovem ninja que busca reconhecimento e sonha em se tornar o Hokage, o líder de sua vila.",
+  //         "releaseDate": "2002-10-03T00:00:00Z"
+  //       },
+  //       {
+  //         "id": "6",
+  //         "title": "The Legend of Zelda: Breath of the Wild",
+  //         "createdAt": "2024-04-02T14:30:00Z",
+  //         "genre": "Aventura",
+  //         "creator": "Nintendo",
+  //         "type": "Game",
+  //         "synopsis": "Um jogo de ação e aventura em um vasto mundo aberto onde o jogador controla Link para salvar o reino de Hyrule.",
+  //         "releaseDate": "2017-03-03T00:00:00Z"
+  //       },
+  //       {
+  //         "id": "7",
+  //         "title": "1984",
+  //         "createdAt": "2024-04-03T14:30:00Z",
+  //         "genre": "Distopia",
+  //         "creator": "George Orwell",
+  //         "type": "Livro",
+  //         "synopsis": "Um romance distópico que explora os perigos do totalitarismo e da vigilância governamental.",
+  //         "releaseDate": "1949-06-08T00:00:00Z"
+  //       },
+  //       {
+  //         "id": "8",
+  //         "title": "Serial Killers",
+  //         "createdAt": "2024-04-04T14:30:00Z",
+  //         "genre": "Crime",
+  //         "creator": "Parcast Network",
+  //         "type": "Podcast",
+  //         "synopsis": "Um podcast que explora as histórias e as mentes de assassinos em série.",
+  //         "releaseDate": "2017-02-15T00:00:00Z"
+  //       },
+  //       {
+  //         "id": "9",
+  //         "title": "Bohemian Rhapsody",
+  //         "createdAt": "2024-04-05T14:30:00Z",
+  //         "genre": "Rock",
+  //         "creator": "Queen",
+  //         "type": "Música",
+  //         "synopsis": "Uma das músicas mais icônicas da banda Queen, conhecida por sua estrutura única e letras enigmáticas.",
+  //         "releaseDate": "1975-10-31T00:00:00Z"
+  //       }
+  //     ]),
+  //     200,
+  //   ),
+  // );
 
   if (response.statusCode == 200) {
     var data = json.decode(utf8.decode(response.bodyBytes));
@@ -165,7 +178,10 @@ class MediaList extends StatelessWidget {
 
   Future<List<Media>> fetchMedias() async {
     try {
-      return await getMedias();
+      List<Media> medias = await getMedias();
+      // Ordena as mídias pela data de criação em ordem decrescente
+      medias.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return medias;
     } catch (e) {
       print("Erro ao buscar mídias: $e");
       return [];
@@ -425,7 +441,7 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Mídia adicionada com sucesso!')),
             );
-            Navigator.pop(context);
+            Navigator.pop(context, true);
           }
         } else {
           if (mounted) {
@@ -528,69 +544,103 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
                     ),
                     SizedBox(height: 16),
                     
-                    GestureDetector(
-                      onTap: () async {
-                        await showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return StatefulBuilder(
-                              builder: (context, setDialogState) {
-                                return AlertDialog(
-                                  title: Text('Selecione os Gêneros'),
-                                  content: SingleChildScrollView(
-                                    child: Column(
-                                      children: sugestGeneros.map((String genero) {
-                                        return CheckboxListTile(
-                                          title: Text(genero),
-                                          value: _generosSelecionados.contains(genero),
-                                          onChanged: (bool? value) {
-                                            setDialogState(() {
-                                              // Atualiza a lista de gêneros selecionados
-                                              if (value == true) {
-                                                _generosSelecionados.add(genero);
-                                              } else {
-                                                _generosSelecionados.remove(genero);
-                                              }
-                                              
-                                              // Atualiza o texto do campo em tempo real
-                                              _genreController.text = _generosSelecionados.join(', ');
-                                            });
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            await showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return StatefulBuilder(
+                                  builder: (context, setDialogState) {
+                                    return AlertDialog(
+                                      title: Text('Selecione os Gêneros'),
+                                      content: SingleChildScrollView(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: sugestGeneros.map((String genero) {
+                                            return CheckboxListTile(
+                                              title: Text(genero),
+                                              value: _generosSelecionados.contains(genero),
+                                              onChanged: (bool? value) {
+                                                setDialogState(() {
+                                                  if (value == true) {
+                                                    _generosSelecionados.add(genero);
+                                                  } else {
+                                                    _generosSelecionados.remove(genero);
+                                                  }
+                                                });
+                                              },
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
                                           },
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        // Não precisa mais atualizar o controlador aqui, já foi atualizado no onChanged
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Text('OK'),
-                                    ),
-                                  ],
+                                          child: Text('OK'),
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 );
                               },
                             );
+                            setState(() {}); 
                           },
-                        );
-                      },
-                      child: AbsorbPointer(
-                        child: TextFormField(
-                          controller: _genreController, // Usa o controlador existente
-                          decoration: InputDecoration(
-                            labelText: 'Gêneros',
-                            hintText: 'Selecione os gêneros',
-                            border: OutlineInputBorder(),
+                          icon: Icon(Icons.category),
+                          label: Text('Selecionar Gêneros'),
+                          style: ElevatedButton.styleFrom(
+                            // backgroundColor: primaryColor,
+                            padding: EdgeInsets.symmetric(vertical: 16),
                           ),
-                          validator: (value) {
-                            if (_generosSelecionados.isEmpty) {
-                              return 'Selecione pelo menos um gênero';
-                            }
-                            return null;
-                          },
                         ),
-                      ),
+                        
+                        SizedBox(height: 8),
+                        
+                        // Exibe os gêneros selecionados como chips
+                        _generosSelecionados.isEmpty
+                            ? Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  'Selecione pelo menos um gênero',
+                                  style: TextStyle(color: Colors.red[700], fontSize: 12),
+                                ),
+                              )
+                            : Wrap(
+                                spacing: 8.0,
+                                runSpacing: 8.0,
+                                children: _generosSelecionados.map((genero) {
+                                  return Chip(
+                                    label: Text(genero),
+                                    backgroundColor: Colors.grey[200],
+                                    deleteIcon: Icon(Icons.cancel, size: 18),
+                                    onDeleted: () {
+                                      setState(() {
+                                        _generosSelecionados.remove(genero);
+                                      });
+                                    },
+                                  );
+                                }).toList(),
+                              ),
+                        
+                        // Campo oculto para validação
+                        Opacity(
+                          opacity: 0,
+                          child: TextFormField(
+                            controller: _genreController,
+                            validator: (value) {
+                              if (_generosSelecionados.isEmpty) {
+                                return 'Selecione pelo menos um gênero';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                     SizedBox(height: 16),
                     
@@ -805,8 +855,6 @@ class MediaDetailScaffold extends StatelessWidget {
         ),
       ),
 
-      
-      
     );
   }
 }
