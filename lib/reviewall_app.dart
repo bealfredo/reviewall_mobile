@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:reviewall_mobile/media.dart';
 import 'package:reviewall_mobile/review.dart';
 
+const baseUrlApi = 'https://67e6f0a56530dbd31111f8e2.mockapi.io/reviewall'; 
+
 const primaryColor = Color.fromARGB(255, 102, 255, 82);
 const primaryColorLight = Color.fromARGB(255, 102, 255, 82);
 const secondaryColor = Color.fromARGB(255, 255, 82, 82);

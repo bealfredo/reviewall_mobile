@@ -31,7 +31,9 @@ class MediaListScaffold extends StatelessWidget {
 }
 
 Future<dynamic> getMedias() async {
-  var url = Uri.parse('https://67e6f0a56530dbd31111f8e2.mockapi.io/reviewall/media');
+  var url = Uri.parse('$baseUrlApi/media');
+
+  // var response = await http.get(url);
 
   var response = await Future.delayed(
     Duration(seconds: 1),
@@ -56,6 +58,76 @@ Future<dynamic> getMedias() async {
           "type": "Filme",
           "synopsis": "Um ladrão que rouba segredos corporativos através do uso de tecnologia de compartilhamento de sonhos é oferecido a chance de apagar seu passado como pagamento por uma tarefa considerada impossível.",
           "releaseDate": "2010-01-01T00:00:00Z"
+        },
+        {
+          "id": "3",
+          "title": "Breaking Bad",
+          "createdAt": "2024-03-30T14:30:00Z",
+          "genre": "Drama",
+          "creator": "Vince Gilligan",
+          "type": "Série",
+          "synopsis": "Um professor de química do ensino médio com câncer terminal começa a fabricar metanfetamina para garantir o futuro financeiro de sua família.",
+          "releaseDate": "2008-01-20T00:00:00Z"
+        },
+        {
+          "id": "4",
+          "title": "Planeta Terra",
+          "createdAt": "2024-03-31T14:30:00Z",
+          "genre": "Documentário",
+          "creator": "BBC",
+          "type": "Documentário",
+          "synopsis": "Uma série documental que explora a beleza e a diversidade do planeta Terra.",
+          "releaseDate": "2006-03-05T00:00:00Z"
+        },
+        {
+          "id": "5",
+          "title": "Naruto",
+          "createdAt": "2024-04-01T14:30:00Z",
+          "genre": "Anime",
+          "creator": "Masashi Kishimoto",
+          "type": "Anime",
+          "synopsis": "A história de um jovem ninja que busca reconhecimento e sonha em se tornar o Hokage, o líder de sua vila.",
+          "releaseDate": "2002-10-03T00:00:00Z"
+        },
+        {
+          "id": "6",
+          "title": "The Legend of Zelda: Breath of the Wild",
+          "createdAt": "2024-04-02T14:30:00Z",
+          "genre": "Aventura",
+          "creator": "Nintendo",
+          "type": "Game",
+          "synopsis": "Um jogo de ação e aventura em um vasto mundo aberto onde o jogador controla Link para salvar o reino de Hyrule.",
+          "releaseDate": "2017-03-03T00:00:00Z"
+        },
+        {
+          "id": "7",
+          "title": "1984",
+          "createdAt": "2024-04-03T14:30:00Z",
+          "genre": "Distopia",
+          "creator": "George Orwell",
+          "type": "Livro",
+          "synopsis": "Um romance distópico que explora os perigos do totalitarismo e da vigilância governamental.",
+          "releaseDate": "1949-06-08T00:00:00Z"
+        },
+        {
+          "id": "8",
+          "title": "Serial Killers",
+          "createdAt": "2024-04-04T14:30:00Z",
+          "genre": "Crime",
+          "creator": "Parcast Network",
+          "type": "Podcast",
+          "synopsis": "Um podcast que explora as histórias e as mentes de assassinos em série.",
+          "releaseDate": "2017-02-15T00:00:00Z"
+        },
+        {
+          "id": "9",
+          "title": "Bohemian Rhapsody",
+          "createdAt": "2024-04-05T14:30:00Z",
+          "genre": "Rock",
+          "creator": "Queen",
+          "type": "Música",
+          "synopsis": "Uma das músicas mais icônicas da banda Queen, conhecida por sua estrutura única e letras enigmáticas.",
+          "releaseDate": "1975-10-31T00:00:00Z"
         }
       ]),
       200,
@@ -63,21 +135,28 @@ Future<dynamic> getMedias() async {
   );
 
   if (response.statusCode == 200) {
-    var data = json.decode(response.body);
+    var data = json.decode(utf8.decode(response.bodyBytes));
     List<Media> medias = (data as List).map((item) => Media.fromJson(item)).toList();
     return medias;
   } else {
     print("Erro ao fazer a requisição: ${response.statusCode}");
+    return [];
   }
 }
 
 Future<http.Response> postMedia(Map<String, dynamic> media) async {
-  var url = Uri.parse('https://67e6f0a56530dbd31111f8e2.mockapi.io/reviewall/media');
+  var url = Uri.parse('$baseUrlApi/media');
   var response = await http.post(
     url,
     body: json.encode(media),
     headers: {'Content-Type': 'application/json'},
   );
+  return response;
+}
+
+Future<http.Response> deleteMedia(String id) async {
+  var url = Uri.parse('$baseUrlApi/media/$id');
+  var response = await http.delete(url);
   return response;
 }
 
@@ -126,21 +205,46 @@ class MediaListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
-        title: Text(media.title),
+        title: RichText(
+          text: TextSpan(
+            text: media.title,
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
+            children: [
+              TextSpan(
+                text: ' #${media.id}',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.black54),
+              ),
+            ],
+          ),
+        ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Criador: ${media.creator}'),
+            // Text('Criador: ${media.creator}'),
             Text('Tipo: ${media.type}'),
-            Text('Gênero: ${media.genre}'),
             Text('Ano de Lançamento: ${media.releaseDate.year}'),
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 4.0,
+              children: media.genre.map<Widget>((genre) {
+                return Chip(
+                  label: Text(genre),
+                  backgroundColor: Colors.grey[200],
+                );
+              }).toList(),
+            ),
           ],
         ),
-        leading: Icon(Icons.movie),
+        leading: Icon(media.icon, size: 40),
         trailing: IconButton(
-          icon: Icon(Icons.delete),
+          icon: Icon(Icons.arrow_forward),
           onPressed: () {
-            
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MediaDetailScaffold(media),
+              ),
+            );
           },
         ),
       ),
@@ -155,9 +259,10 @@ class Media {
   String title; 
   String creator;
   String type;
-  String genre;
+  List<dynamic> genre;
   String synopsis;
   DateTime releaseDate;
+  IconData icon;
 
   Media({
     required this.id,
@@ -168,7 +273,7 @@ class Media {
     required this.genre,
     required this.synopsis,
     required this.releaseDate,
-  });
+  }) : icon = _getIconForType(type);
 
   factory Media.fromJson(Map<String, dynamic> json) {
     return Media(
@@ -194,6 +299,29 @@ class Media {
       'synopsis': synopsis,
       'releaseDate': releaseDate.toIso8601String(),
     };
+  }
+
+  static IconData _getIconForType(String type) {
+    switch (type.toLowerCase()) {
+      case 'filme':
+        return Icons.movie;
+      case 'série':
+        return Icons.tv;
+      case 'documentário':
+        return Icons.book;
+      case 'anime':
+        return Icons.animation;
+      case 'game':
+        return Icons.videogame_asset;
+      case 'livro':
+        return Icons.menu_book;
+      case 'podcast':
+        return Icons.podcasts;
+      case 'música':
+        return Icons.music_note;
+      default:
+        return Icons.device_unknown;
+    }
   }
 }
 
@@ -238,6 +366,7 @@ final List<String> sugestTypes = [
 ];
 
 
+// Formulário para adicionar uma nova mídia
 class FormAddMediaScaffold extends StatefulWidget {
   const FormAddMediaScaffold({super.key});
 
@@ -537,6 +666,147 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
               ),
             ),
           ),
+    );
+  }
+}
+
+
+// Visualizar mídia
+class MediaDetailScaffold extends StatelessWidget {
+  final Media media;
+
+  const MediaDetailScaffold(this.media, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(media.title),
+        backgroundColor: primaryColor,
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Ícone como imagem principal
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  media.icon,
+                  size: 60,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Título
+              Text(
+                media.title,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+
+              // Row of buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // Lógica para editar a mídia
+                    },
+                    icon: const Icon(Icons.edit),
+                    label: const Text('Editar'),
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      deleteMedia(media.id).then((response) {
+                        if (response.statusCode == 200) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Mídia deletada com sucesso!')),
+                          );
+                          Navigator.pop(context); // Volta para a lista de mídias
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Erro ao deletar mídia: ${response.statusCode}')),
+                          );
+                        }
+                      });
+                    },
+                    icon: const Icon(Icons.delete),
+                    label: const Text('Deletar'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Informações detalhadas
+              Card(
+                elevation: 2,
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Criador: ${media.creator}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Tipo: ${media.type}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Gênero: ${media.genre}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Sinopse:',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        media.synopsis,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Data de Lançamento: ${media.releaseDate.day.toString().padLeft(2, '0')}/'
+                        '${media.releaseDate.month.toString().padLeft(2, '0')}/'
+                        '${media.releaseDate.year}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+
+      
+      
     );
   }
 }

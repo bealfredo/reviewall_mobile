@@ -34,7 +34,7 @@ class ReviewListScaffold extends StatelessWidget {
 }
 
 Future<dynamic> getReviews() async {
-  var url = Uri.parse('https://67e6f0a56530dbd31111f8e2.mockapi.io/reviewall/review');
+  var url = Uri.parse('$baseUrlApi/review');
 
   // var response = await http.get(url);
   var response = await Future.delayed(
