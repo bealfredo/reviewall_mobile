@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:reviewall_mobile/review.dart';
 import 'package:reviewall_mobile/reviewall_app.dart';
 
 class MediaListScaffold extends StatefulWidget {
@@ -727,6 +728,16 @@ class MediaDetailScaffold extends StatelessWidget {
 
   const MediaDetailScaffold(this.media, {super.key});
 
+  Future<List<String>> fetchReviews() async {
+    // Simulação de busca de reviews
+    await Future.delayed(const Duration(seconds: 1));
+    return [
+      'Ótimo filme, recomendo!',
+      'A história é incrível, mas o final poderia ser melhor.',
+      'Um dos melhores que já assisti!',
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -734,20 +745,68 @@ class MediaDetailScaffold extends StatelessWidget {
         title: Text(media.title),
         backgroundColor: primaryColor,
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Ícone como imagem principal
+              CurrentMedia(media: media),
+              const SizedBox(height: 16),
+
+              // Lista de reviews
+              ReviewListWidget(mediaId: media.id),
+            ],
+          ),
+        ),
+      ),
+
+      // Add Review button
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const FormAddReviewScaffold()),
+          );
+        },
+        backgroundColor: primaryColorLight,
+        icon: const Icon(Icons.add),
+        label: const Text('Adicionar Resenha'),
+      ),
+      
+    );
+  }
+}
+
+
+class CurrentMedia extends StatelessWidget {
+  final Media media;
+
+  const CurrentMedia({required this.media, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Ícone como imagem principal
+        Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               Container(
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
                   color: Colors.grey[200],
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 4,
+                      offset: Offset(2, 2),
+                    ),
+                  ],
                 ),
                 child: Icon(
                   media.icon,
@@ -765,96 +824,112 @@ class MediaDetailScaffold extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
-
-              // Row of buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      // Lógica para editar a mídia
-                    },
-                    icon: const Icon(Icons.edit),
-                    label: const Text('Editar'),
-                  ),
-
-                  const SizedBox(width: 8),
-
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      deleteMedia(media.id).then((response) {
-                        if (response.statusCode == 200) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Mídia deletada com sucesso!')),
-                          );
-                          Navigator.pop(context); // Volta para a lista de mídias
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Erro ao deletar mídia: ${response.statusCode}')),
-                          );
-                        }
-                      });
-                    },
-                    icon: const Icon(Icons.delete),
-                    label: const Text('Deletar'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Informações detalhadas
-              Card(
-                elevation: 2,
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Criador: ${media.creator}',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Tipo: ${media.type}',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Gênero: ${media.genre}',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Sinopse:',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        media.synopsis,
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Data de Lançamento: ${media.releaseDate.day.toString().padLeft(2, '0')}/'
-                        '${media.releaseDate.month.toString().padLeft(2, '0')}/'
-                        '${media.releaseDate.year}',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
             ],
           ),
         ),
-      ),
+        const SizedBox(height: 16),
 
+        // Row of buttons
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton.icon(
+              onPressed: () {
+                // Lógica para editar a mídia
+              },
+              icon: const Icon(Icons.edit),
+              label: const Text('Editar'),
+            ),
+
+            const SizedBox(width: 8),
+
+            ElevatedButton.icon(
+              onPressed: () {
+                deleteMedia(media.id).then((response) {
+                  if (response.statusCode == 200) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Mídia deletada com sucesso!')),
+                    );
+                    Navigator.pop(context); // Volta para a lista de mídias
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Erro ao deletar mídia: ${response.statusCode}')),
+                    );
+                  }
+                });
+              },
+              icon: const Icon(Icons.delete),
+              label: const Text('Deletar'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Informações detalhadas
+        SizedBox(
+          width: double.infinity,
+          child: Card(
+            elevation: 2,
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  // Synopsis
+                  Text(
+                    'Sinopse:',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    media.synopsis,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Genre
+                  Wrap(
+                    spacing: 8.0,
+                    runSpacing: 4.0,
+                    children: media.genre.map<Widget>((genre) {
+                      return Chip(
+                  label: Text(genre),
+                  backgroundColor: Colors.grey[200],
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16), 
+                  
+                  // Type
+                  Text(
+                    'Tipo: ${media.type}',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Creator
+                  Text(
+                    'Criador: ${media.creator}',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
+                
+                  // Release Date
+                  Text(
+                    'Data de Lançamento: ${media.releaseDate.day.toString().padLeft(2, '0')}/'
+                    '${media.releaseDate.month.toString().padLeft(2, '0')}/'
+                    '${media.releaseDate.year}',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

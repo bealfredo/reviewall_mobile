@@ -9,16 +9,16 @@ const primaryColorLight = Color.fromARGB(255, 102, 255, 82);
 const secondaryColor = Color.fromARGB(255, 255, 82, 82);
 final secondaryColorLight = Colors.redAccent[100];
 
-class ReviewTab extends StatelessWidget {
-  const ReviewTab({super.key});
+// class ReviewTab extends StatelessWidget {
+//   const ReviewTab({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-    home: ReviewListScaffold(),
-  );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//     home: ReviewListScaffold(),
+//   );
+//   }
+// }
 
 class MediaTab extends StatelessWidget {
   const MediaTab({super.key});

@@ -6,29 +6,41 @@ import 'package:http/http.dart' as http;
 
 import 'package:reviewall_mobile/reviewall_app.dart';
 
+class ReviewListWidget extends StatefulWidget {
+  final String mediaId;
 
-class ReviewListScaffold extends StatelessWidget {
-  const ReviewListScaffold({super.key});
+  const ReviewListWidget({super.key, required this.mediaId});
+
+  @override
+  State<ReviewListWidget> createState() => _ReviewListWidgetState();
+}
+
+class _ReviewListWidgetState extends State<ReviewListWidget> {
+  Future<List<Review>> fetchAndFilterReviews() async {
+    try {
+      List<Review> reviews = await getReviews();
+      return reviews.where((review) => review.mediaId == widget.mediaId).toList();
+    } catch (e) {
+      print("Erro ao buscar e filtrar resenhas: $e");
+      return [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Resenhas de Mídias'),
-        backgroundColor: secondaryColor,      
-        
-      ),
-      body: ReviewList(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => FormAddReviewScaffold()),
-          );
-        },
-        backgroundColor: secondaryColorLight,
-        child: Icon(Icons.add),
-      ),
+    return FutureBuilder<List<Review>>(
+      future: fetchAndFilterReviews(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Erro ao carregar resenhas'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('Nenhuma resenha encontrada para esta mídia'));
+        } else {
+          return ReviewList(reviews: snapshot.data!);
+        }
+      },
     );
   }
 }
@@ -36,31 +48,7 @@ class ReviewListScaffold extends StatelessWidget {
 Future<dynamic> getReviews() async {
   var url = Uri.parse('$baseUrlApi/review');
 
-  // var response = await http.get(url);
-  var response = await Future.delayed(
-    Duration(seconds: 1),
-    () => http.Response(
-      json.encode([
-        {
-          "id": "1",
-          "createdAt": "2024-03-28T14:30:00Z",
-          "user": "joao123",
-          "rating": 9.5,
-          "comment": "Filme incrível, com uma trilha sonora maravilhosa!",
-          "mediaId": "interestelar"
-        },
-        {
-          "id": "2",
-          "createdAt": "2024-03-29T14:30:00Z",
-          "user": "maria456",
-          "rating": 8.8,
-          "comment": "Uma trama complexa, mas fascinante!",
-          "mediaId": "a-origem"
-        }
-      ]),
-      200,
-    ),
-  );
+  var response = await http.get(url);
 
   if (response.statusCode == 200) {
     var data = json.decode(response.body);
@@ -70,41 +58,23 @@ Future<dynamic> getReviews() async {
     print("Erro ao fazer a requisição: ${response.statusCode}");
   }
 }
-
 class ReviewList extends StatelessWidget {
-  const ReviewList({super.key});
+  final List<Review> reviews;
 
-  // getting data from API
-  Future<List<Review>> fetchReviews() async {
-  try {
-    return await getReviews();
-  } catch (e) {
-    print("Erro ao buscar resenhas: $e");
-    return [];
-  }
-}
+  const ReviewList({super.key, required this.reviews});
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Review>>(
-      future: fetchReviews(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Erro ao carregar resenhas'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('Nenhuma resenha encontrada'));
-        } else {
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              return ReviewListItem(snapshot.data![index]);
-            },
-          );
-        }
-      },
-    );
+    if (reviews.isEmpty) {
+      return Center(child: Text('Nenhuma resenha encontrada'));
+    } else {
+      return ListView.builder(
+        itemCount: reviews.length,
+        itemBuilder: (context, index) {
+          return ReviewListItem(reviews[index]);
+        },
+      );
+    }
   }
 }
 

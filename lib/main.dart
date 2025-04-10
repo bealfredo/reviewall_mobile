@@ -57,10 +57,10 @@ class _NavigationExampleState extends State<NavigationExample> {
           ),
 
 
-          NavigationDestination(
-            icon: Badge(child: Icon(Icons.star)),
-            label: 'Resenhas',
-          ),
+          // NavigationDestination(
+          //   icon: Badge(child: Icon(Icons.star)),
+          //   label: 'Resenhas',
+          // ),
 
           // NavigationDestination(
           //   icon: Badge(child: Icon(Icons.add)),
@@ -82,8 +82,8 @@ class _NavigationExampleState extends State<NavigationExample> {
             /// Mídias page
             MediaTab(),
 
-            /// Resenhas de filmes page
-            ReviewTab(),
+            // /// Resenhas de filmes page
+            // ReviewTab(),
 
             /// Add page
             // FormularioAddResenhaScaffold()
