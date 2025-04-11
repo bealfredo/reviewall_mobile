@@ -2,7 +2,7 @@
 
 Aplicativo Flutter para gerenciar e avaliar diversos tipos de mídias, como filmes, séries, livros, jogos e muito mais.
 
-## Sobre o AplicativoVisualizar uma lista de mídias com detalhes como título, criador, tipo, gêneros, 
+## Sobre o Aplicativo
 
 Este aplicativo foi desenvolvido como parte do curso de **PROGRAMACAO PARA DISPOSITIVOS MOVEIS I** na **UNIVERSIDADE ESTADUAL DO TOCANTINS** pelo aluno **ALFREDO DE SOUZA AGUIAR NETO**.
 O aplicativo permite aos usuários:
