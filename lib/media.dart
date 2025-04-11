@@ -348,6 +348,7 @@ final List<String> sugestGeneros = [
   'Ação',
   'Anime',
   'Asiáticos',
+  'Aventura',
   'Brasileiros',
   'Britânicos',
   'Ciência e natureza',
@@ -364,8 +365,13 @@ final List<String> sugestGeneros = [
   'Reality e talk shows',
   'Romance',
   'Séries documentais',
+  'Suspense',
   'Teen',
   'Terror',
+  'Histórico',
+  'Biografia',
+  'Musical',
+  'Guerra',
   'Outro'
 ];
 
