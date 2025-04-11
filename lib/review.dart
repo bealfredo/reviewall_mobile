@@ -251,8 +251,9 @@ class _FormAddReviewScaffoldState extends State<FormAddReviewScaffold> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Adicionar Resenha'),
-        backgroundColor: secondaryColor,
+        title: Text('Adicionar Resenha', style: TextStyle(color: fontColor)),
+        backgroundColor: primaryColor,
+        iconTheme: IconThemeData(color: fontColor),
       ),
       body: _isLoading 
         ? Center(child: CircularProgressIndicator()) 
@@ -374,9 +375,10 @@ class _FormAddReviewScaffoldState extends State<FormAddReviewScaffold> {
                         ElevatedButton(
                           onPressed: _salvarResenha,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: secondaryColor,
+                            backgroundColor: primaryColor,
+                            foregroundColor: fontColor,
                             padding: EdgeInsets.symmetric(vertical: 16),
-                            disabledBackgroundColor: Colors.grey,
+                            disabledBackgroundColor: secondaryColor,
                           ),
                           child: Text(
                             'SALVAR',

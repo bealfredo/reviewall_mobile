@@ -29,7 +29,6 @@ class _NavigationExampleState extends State<NavigationExample> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     return Scaffold(
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
@@ -37,14 +36,9 @@ class _NavigationExampleState extends State<NavigationExample> {
             currentPageIndex = index;
           });
         },
-        indicatorColor: Colors.redAccent,
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
-          // NavigationDestination(
-          //   selectedIcon: Icon(Icons.home),
-          //   icon: Icon(Icons.home_outlined),
-          //   label: 'Home',
-          // ),
+
           NavigationDestination(
             selectedIcon: Icon(Icons.home),
             icon: Icon(Icons.home_outlined),
@@ -52,41 +46,56 @@ class _NavigationExampleState extends State<NavigationExample> {
           ),
 
           NavigationDestination(
-            icon: Badge(child: Icon(Icons.photo)),
+            icon: Icon(Icons.movie_creation_outlined),
             label: 'Mídias',
           ),
-
-
-          // NavigationDestination(
-          //   icon: Badge(child: Icon(Icons.star)),
-          //   label: 'Resenhas',
-          // ),
-
-          // NavigationDestination(
-          //   icon: Badge(child: Icon(Icons.add)),
-          //   label: 'Add'
-          // ),
         ],
       ),
       body:
           <Widget>[
             /// Home page
-            Card(
-              shadowColor: Colors.transparent,
-              margin: const EdgeInsets.all(8.0),
-              child: SizedBox.expand(
-                child: Center(child: Text('Another page', style: theme.textTheme.titleLarge)),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                    colors: [
+                    Theme.of(context).colorScheme.primary,
+                    Theme.of(context).colorScheme.secondary,
+                  ],
+                ),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'ReviewAll',
+                      style: TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Avalie tudo o que você assiste e lê',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white70,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 
             /// Mídias page
             MediaTab(),
 
-            // /// Resenhas de filmes page
-            // ReviewTab(),
+            // /// Sobre page
+            // AboutTab(),
 
-            /// Add page
-            // FormularioAddResenhaScaffold()
           ][currentPageIndex],
     );
   }

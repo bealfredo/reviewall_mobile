@@ -19,7 +19,10 @@ class _MediaListScaffoldState extends State<MediaListScaffold> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lista de Mídias'),
+        title: const Text(
+          'Lista de Mídias',
+          style: TextStyle(color: fontColor),
+        ),
         backgroundColor: primaryColor,
       ),
       body: MediaList(key: _listKey), 
@@ -38,6 +41,7 @@ class _MediaListScaffoldState extends State<MediaListScaffold> {
           }
         },
         backgroundColor: primaryColorLight,
+        foregroundColor: fontColor,
         child: const Icon(Icons.add),
       ),
     );
@@ -108,15 +112,18 @@ class _MediaListState extends State<MediaList> {
       List<Review> allReviews = await getReviews();
 
       for (var media in medias) {
-        var mediaReviews = allReviews.where((review) => review.mediaId == media.id).toList();
+      var mediaReviews = allReviews.where((review) => review.mediaId == media.id).toList();
 
-        if (mediaReviews.isNotEmpty) {
-          // Calcular a média
-          double sum = mediaReviews.fold(0.0, (sum, review) => sum + review.rating);
-          media.averageRating = sum / mediaReviews.length;
-        } else {
-          media.averageRating = 0.0;
-        }
+      if (mediaReviews.isNotEmpty) {
+        // Calcular a média
+        double sum = mediaReviews.fold(0.0, (sum, review) => sum + review.rating);
+        media.averageRating = sum / mediaReviews.length;
+      } else {
+        media.averageRating = 0.0;
+      }
+
+      // Salvar a quantidade de resenhas
+      media.reviewCount = mediaReviews.length;
       }
 
       // Ordenar por data de criação
@@ -208,7 +215,8 @@ class MediaListItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Tipo: ${media.type}'),
-            Text('Ano de Lançamento: ${media.releaseDate.year}'),
+            // Text('Ano de Lançamento: ${media.releaseDate.year}'),
+            Text('Resenhas: ${media.reviewCount}'),
             Wrap(
               spacing: 8.0,
               runSpacing: 4.0,
@@ -266,6 +274,7 @@ class Media {
   DateTime releaseDate;
   IconData icon;
   double averageRating;
+  int reviewCount = 0;
   
   Media({
     required this.id,
@@ -277,6 +286,7 @@ class Media {
     required this.synopsis,
     required this.releaseDate,
     this.averageRating = 0.0,
+    this.reviewCount = 0,
   }) : icon = _getIconForType(type);
 
   factory Media.fromJson(Map<String, dynamic> json) {
@@ -310,11 +320,13 @@ class Media {
       case 'filme':
         return Icons.movie;
       case 'série':
-        return Icons.tv;
+        return Icons.live_tv;
       case 'documentário':
-        return Icons.book;
+        return Icons.videocam;
       case 'anime':
         return Icons.animation;
+      case 'desenho animado':
+        return Icons.smart_toy;
       case 'game':
         return Icons.videogame_asset;
       case 'livro':
@@ -323,6 +335,8 @@ class Media {
         return Icons.podcasts;
       case 'música':
         return Icons.music_note;
+      case 'outro':
+        return Icons.category;
       default:
         return Icons.device_unknown;
     }
@@ -494,8 +508,17 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditMode ? 'Editar Mídia' : 'Adicionar Mídia'),
-        backgroundColor: primaryColor,        
+        title: Text(
+          _isEditMode ? 'Editar Mídia' : 'Adicionar Mídia',
+          style: TextStyle(color: fontColor),
+        ),
+        backgroundColor: primaryColor,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: fontColor),
+          onPressed: () {
+            Navigator.pop(context, false);
+          },
+        ),
       ),
       body: _isLoading 
         ? Center(child: CircularProgressIndicator()) 
@@ -725,6 +748,7 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
                       onPressed: _salvarMidia,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryColor,
+                        foregroundColor: fontColor,
                         padding: EdgeInsets.symmetric(vertical: 16),
                       ),
                       child: Text(
@@ -844,6 +868,8 @@ class _MediaDetailScaffoldState extends State<MediaDetailScaffold> {
       appBar: AppBar(
         title: _isLoading ? Text('Carregando...') : Text(_media.title),
         backgroundColor: primaryColor,
+        foregroundColor: fontColor,
+        iconTheme: IconThemeData(color: fontColor),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -883,6 +909,21 @@ class _MediaDetailScaffoldState extends State<MediaDetailScaffold> {
                         ),
                         const SizedBox(height: 16),
 
+                        // Título da seção de resenhas
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Resenhas (${_filteredReviews.length})',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
                         // Lista de reviews
                         ReviewListWidget(
                           key: _reviewListKey,
@@ -913,7 +954,8 @@ class _MediaDetailScaffoldState extends State<MediaDetailScaffold> {
                   await _refreshMediaDetails();
                 }
               },
-              backgroundColor: primaryColorLight,
+                backgroundColor: primaryColorLight,
+                foregroundColor: fontColor,
               icon: const Icon(Icons.add),
               label: const Text('Adicionar Resenha'),
             ),
