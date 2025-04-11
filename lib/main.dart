@@ -61,7 +61,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                   end: Alignment.bottomCenter,
                     colors: [
                     Theme.of(context).colorScheme.primary,
-                    Theme.of(context).colorScheme.secondary,
+                    primaryColor,
                   ],
                 ),
               ),
@@ -79,7 +79,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                     ),
                     SizedBox(height: 16),
                     Text(
-                      'Avalie tudo o que você assiste e lê',
+                        'Avalie tudo o que você assiste, lê, joga e ouve',
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.white70,
