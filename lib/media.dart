@@ -887,6 +887,7 @@ class _MediaDetailScaffoldState extends State<MediaDetailScaffold> {
                         ReviewListWidget(
                           key: _reviewListKey,
                           reviews: _filteredReviews,
+                          onReviewDeleted: _refreshMediaDetails,
                         ),
                       ],
                     ),
