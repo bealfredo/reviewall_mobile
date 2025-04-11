@@ -49,105 +49,6 @@ Future<dynamic> getMedias() async {
 
   var response = await http.get(url);
 
-  // var response = await Future.delayed(
-  //   Duration(seconds: 1),
-  //   () => http.Response(
-  //     json.encode([
-  //       {
-  //         "id": "1",
-  //         "title": "Interestelar",
-  //         "createdAt": "2024-03-28T14:30:00Z",
-  //         "genre": "Ficção Científica",
-  //         "creator": "Christopher Nolan",
-  //         "type": "Filme",
-  //         "synopsis": "Um grupo de astronautas viaja através de um buraco de minhoca em busca de um novo lar para a humanidade.",
-  //         "releaseDate": "2014-01-01T00:00:00Z"
-  //       },
-  //       {
-  //         "id": "2",
-  //         "title": "A Origem",
-  //         "createdAt": "2024-03-29T14:30:00Z",
-  //         "genre": "Ficção Científica",
-  //         "creator": "Christopher Nolan",
-  //         "type": "Filme",
-  //         "synopsis": "Um ladrão que rouba segredos corporativos através do uso de tecnologia de compartilhamento de sonhos é oferecido a chance de apagar seu passado como pagamento por uma tarefa considerada impossível.",
-  //         "releaseDate": "2010-01-01T00:00:00Z"
-  //       },
-  //       {
-  //         "id": "3",
-  //         "title": "Breaking Bad",
-  //         "createdAt": "2024-03-30T14:30:00Z",
-  //         "genre": "Drama",
-  //         "creator": "Vince Gilligan",
-  //         "type": "Série",
-  //         "synopsis": "Um professor de química do ensino médio com câncer terminal começa a fabricar metanfetamina para garantir o futuro financeiro de sua família.",
-  //         "releaseDate": "2008-01-20T00:00:00Z"
-  //       },
-  //       {
-  //         "id": "4",
-  //         "title": "Planeta Terra",
-  //         "createdAt": "2024-03-31T14:30:00Z",
-  //         "genre": "Documentário",
-  //         "creator": "BBC",
-  //         "type": "Documentário",
-  //         "synopsis": "Uma série documental que explora a beleza e a diversidade do planeta Terra.",
-  //         "releaseDate": "2006-03-05T00:00:00Z"
-  //       },
-  //       {
-  //         "id": "5",
-  //         "title": "Naruto",
-  //         "createdAt": "2024-04-01T14:30:00Z",
-  //         "genre": "Anime",
-  //         "creator": "Masashi Kishimoto",
-  //         "type": "Anime",
-  //         "synopsis": "A história de um jovem ninja que busca reconhecimento e sonha em se tornar o Hokage, o líder de sua vila.",
-  //         "releaseDate": "2002-10-03T00:00:00Z"
-  //       },
-  //       {
-  //         "id": "6",
-  //         "title": "The Legend of Zelda: Breath of the Wild",
-  //         "createdAt": "2024-04-02T14:30:00Z",
-  //         "genre": "Aventura",
-  //         "creator": "Nintendo",
-  //         "type": "Game",
-  //         "synopsis": "Um jogo de ação e aventura em um vasto mundo aberto onde o jogador controla Link para salvar o reino de Hyrule.",
-  //         "releaseDate": "2017-03-03T00:00:00Z"
-  //       },
-  //       {
-  //         "id": "7",
-  //         "title": "1984",
-  //         "createdAt": "2024-04-03T14:30:00Z",
-  //         "genre": "Distopia",
-  //         "creator": "George Orwell",
-  //         "type": "Livro",
-  //         "synopsis": "Um romance distópico que explora os perigos do totalitarismo e da vigilância governamental.",
-  //         "releaseDate": "1949-06-08T00:00:00Z"
-  //       },
-  //       {
-  //         "id": "8",
-  //         "title": "Serial Killers",
-  //         "createdAt": "2024-04-04T14:30:00Z",
-  //         "genre": "Crime",
-  //         "creator": "Parcast Network",
-  //         "type": "Podcast",
-  //         "synopsis": "Um podcast que explora as histórias e as mentes de assassinos em série.",
-  //         "releaseDate": "2017-02-15T00:00:00Z"
-  //       },
-  //       {
-  //         "id": "9",
-  //         "title": "Bohemian Rhapsody",
-  //         "createdAt": "2024-04-05T14:30:00Z",
-  //         "genre": "Rock",
-  //         "creator": "Queen",
-  //         "type": "Música",
-  //         "synopsis": "Uma das músicas mais icônicas da banda Queen, conhecida por sua estrutura única e letras enigmáticas.",
-  //         "releaseDate": "1975-10-31T00:00:00Z"
-  //       }
-  //     ]),
-  //     200,
-  //   ),
-  // );
-
   if (response.statusCode == 200) {
     var data = json.decode(utf8.decode(response.bodyBytes));
     List<Media> medias = (data as List).map((item) => Media.fromJson(item)).toList();
@@ -174,6 +75,16 @@ Future<http.Response> deleteMedia(String id) async {
   return response;
 }
 
+Future<http.Response> updateMedia(String id, Map<String, dynamic> media) async {
+  var url = Uri.parse('$baseUrlApi/media/$id');
+  var response = await http.put(
+    url,
+    body: json.encode(media),
+    headers: {'Content-Type': 'application/json'},
+  );
+  return response;
+}
+
 class MediaList extends StatefulWidget {
   const MediaList({super.key});
 
@@ -192,15 +103,11 @@ class _MediaListState extends State<MediaList> {
 
   Future<List<Media>> fetchMedias() async {
     try {
-      // Obter a lista de mídias
       List<Media> medias = await getMedias();
 
-      // Obter todas as resenhas de uma vez só
       List<Review> allReviews = await getReviews();
 
-      // Para cada mídia, calcular a média das avaliações
       for (var media in medias) {
-        // Filtrar as resenhas para esta mídia específica
         var mediaReviews = allReviews.where((review) => review.mediaId == media.id).toList();
 
         if (mediaReviews.isNotEmpty) {
@@ -208,7 +115,7 @@ class _MediaListState extends State<MediaList> {
           double sum = mediaReviews.fold(0.0, (sum, review) => sum + review.rating);
           media.averageRating = sum / mediaReviews.length;
         } else {
-          media.averageRating = 0.0; // Sem avaliações
+          media.averageRating = 0.0;
         }
       }
 
@@ -330,14 +237,14 @@ class MediaListItem extends StatelessWidget {
         trailing: IconButton(
           icon: Icon(Icons.arrow_forward),
           onPressed: () async {
-            final Media result = await Navigator.push(
+            final Media? result = await Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => MediaDetailScaffold(media),
+                builder: (context) => MediaDetailScaffold(media.id),
               ),
             );
 
-            if (result.averageRating != media.averageRating) {
+            if (result != null && result.averageRating != media.averageRating) {
               onMediaUpdated();
             }
           },
@@ -465,7 +372,9 @@ final List<String> sugestTypes = [
 
 // Formulário para adicionar uma nova mídia
 class FormAddMediaScaffold extends StatefulWidget {
-  const FormAddMediaScaffold({super.key});
+  final Media? media; // Media opcional para edição
+  
+  const FormAddMediaScaffold({this.media, super.key});
 
   @override
   State<FormAddMediaScaffold> createState() => _FormAddMediaScaffoldState();
@@ -485,10 +394,34 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
   final List<String> _generosSelecionados = [];
   DateTime? _dataLancamento;
   bool _isLoading = false;
+  bool _isEditMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Verificar se é modo de edição e preencher os campos
+    if (widget.media != null) {
+      _isEditMode = true;
+      _titleController.text = widget.media!.title;
+      _creatorController.text = widget.media!.creator;
+      _typeController.text = widget.media!.type;
+      _synopsisController.text = widget.media!.synopsis;
+      
+      // Preencher a data
+      _dataLancamento = widget.media!.releaseDate;
+      _releaseDateController.text = 
+        "${_dataLancamento!.day.toString().padLeft(2, '0')}/"
+        "${_dataLancamento!.month.toString().padLeft(2, '0')}/"
+        "${_dataLancamento!.year}";
+      
+      // Preencher os gêneros
+      _generosSelecionados.addAll(widget.media!.genre.map((g) => g.toString()));
+    }
+  }
 
   @override
   void dispose() {
-    // Liberar recursos dos controladores
     _titleController.dispose();
     _creatorController.dispose();
     _typeController.dispose();
@@ -505,22 +438,32 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
       });
 
       try {
-        final midia = {
+        final mediaDados = {
           'title': _titleController.text,
           'creator': _creatorController.text,
           'type': _typeController.text,
-          'genre': _generosSelecionados, // Envia a lista de gêneros
+          'genre': _generosSelecionados,
           'synopsis': _synopsisController.text,
           'releaseDate': _dataLancamento!.toIso8601String(),
-          'createdAt': DateTime.now().toIso8601String(),
         };
+        
+        http.Response response;
+        
+        if (_isEditMode) {
+          // Adicionar ID e createdAt para atualização
+          mediaDados['id'] = widget.media!.id;
+          mediaDados['createdAt'] = widget.media!.createdAt.toIso8601String();
+          response = await updateMedia(widget.media!.id, mediaDados);
+        } else {
+          // Para nova mídia adicionar createdAt
+          mediaDados['createdAt'] = DateTime.now().toIso8601String();
+          response = await postMedia(mediaDados);
+        }
 
-        var response = await postMedia(midia);
-
-        if (response.statusCode == 201) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Mídia adicionada com sucesso!')),
+              SnackBar(content: Text(_isEditMode ? 'Mídia atualizada com sucesso!' : 'Mídia adicionada com sucesso!')),
             );
             Navigator.pop(context, true);
           }
@@ -529,10 +472,9 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Erro ao salvar mídia: ${response.statusCode}')),
             );
-
             setState(() {
-            _isLoading = false;
-          });
+              _isLoading = false;
+            });
           }
         }
       } catch (e) {
@@ -540,7 +482,6 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Erro ao salvar mídia: $e')),
           );
-
           setState(() {
             _isLoading = false;
           });
@@ -553,7 +494,7 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Adicionar Mídia'),
+        title: Text(_isEditMode ? 'Editar Mídia' : 'Adicionar Mídia'),
         backgroundColor: primaryColor,        
       ),
       body: _isLoading 
@@ -682,7 +623,6 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
                         
                         SizedBox(height: 8),
                         
-                        // Exibe os gêneros selecionados como chips
                         _generosSelecionados.isEmpty
                             ? Padding(
                                 padding: const EdgeInsets.only(top: 8.0),
@@ -788,7 +728,7 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
                         padding: EdgeInsets.symmetric(vertical: 16),
                       ),
                       child: Text(
-                        'SALVAR',
+                        _isEditMode ? 'ATUALIZAR' : 'SALVAR',
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -804,9 +744,9 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
 
 // Visualizar mídia
 class MediaDetailScaffold extends StatefulWidget {
-  final Media media;
+  final String mediaId;
 
-  const MediaDetailScaffold(this.media, {super.key});
+  const MediaDetailScaffold(this.mediaId, {super.key});
 
   @override
   State<MediaDetailScaffold> createState() => _MediaDetailScaffoldState();
@@ -814,28 +754,87 @@ class MediaDetailScaffold extends StatefulWidget {
 
 class _MediaDetailScaffoldState extends State<MediaDetailScaffold> {
   Key _reviewListKey = UniqueKey();
+  late Future<Media> _mediaFuture;
+  late List<Review> _filteredReviews;
+  bool _isLoading = true;
+  late Media _media;
 
-  Future<void> _updateMediaAverageRating() async {
+  @override
+  void initState() {
+    super.initState();
+    _mediaFuture = _fetchMediaDetails();
+  }
+
+  // Função para buscar os detalhes da mídia pelo ID
+  Future<Media> _fetchMediaDetails() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      // Obter todas as resenhas
-      List<Review> reviews = await getReviews();
+      // Buscar todas as mídias
+      List<Media> allMedias = await getMedias();
 
-      // Filtrar as resenhas para esta mídia específica
-      var mediaReviews = reviews.where((review) => review.mediaId == widget.media.id).toList();
+      // Encontrar a mídia com o ID correspondente
+      Media media = allMedias.firstWhere(
+        (m) => m.id == widget.mediaId,
+        orElse: () => throw Exception('Mídia não encontrada'),
+      );
 
-      // Calcular a média das avaliações
-      if (mediaReviews.isNotEmpty) {
-        double sum = mediaReviews.fold(0.0, (sum, review) => sum + review.rating);
-        setState(() {
-          widget.media.averageRating = sum / mediaReviews.length;
-        });
+      // Buscar todas as resenhas
+      List<Review> allReviews = await getReviews();
+
+      // Filtrar as resenhas para esta mídia
+      _filteredReviews = allReviews.where((review) => review.mediaId == media.id).toList();
+
+      // Calcular a média das avaliações para esta mídia
+      if (_filteredReviews.isNotEmpty) {
+        double sum = _filteredReviews.fold(0.0, (sum, review) => sum + review.rating);
+        media.averageRating = sum / _filteredReviews.length;
       } else {
+        media.averageRating = 0.0;
+      }
+
+      // Atualizar estado
+      if (mounted) {
         setState(() {
-          widget.media.averageRating = 0.0; // Sem avaliações
+          _isLoading = false;
+          _media = media;
         });
       }
+
+      return media;
     } catch (e) {
-      print("Erro ao atualizar a média das avaliações: $e");
+      print("Erro ao buscar detalhes da mídia: $e");
+
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+
+      throw e;
+    }
+  }
+
+  // Função para atualizar os dados da mídia
+  Future<void> _refreshMediaDetails() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      _mediaFuture = _fetchMediaDetails();
+      _media = await _mediaFuture;
+      _reviewListKey = UniqueKey();
+    } catch (e) {
+      print("Erro ao atualizar detalhes da mídia: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -843,69 +842,90 @@ class _MediaDetailScaffoldState extends State<MediaDetailScaffold> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.media.title),
+        title: _isLoading ? Text('Carregando...') : Text(_media.title),
         backgroundColor: primaryColor,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context, widget.media);
+            Navigator.pop(context, _media);
           },
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              CurrentMedia(media: widget.media),
-              const SizedBox(height: 16),
+      body: _isLoading
+        ? Center(child: CircularProgressIndicator())
+        : FutureBuilder<Media>(
+            future: _mediaFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting && _isLoading) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Erro ao carregar a mídia: ${snapshot.error}'));
+              } else if (!snapshot.hasData) {
+                return Center(child: Text(''));
+                // return Center(child: Text('Mídia não encontrada'));
+              } else {
+                _media = snapshot.data!;
 
-              // Lista de reviews
-              ReviewListWidget(key: _reviewListKey, media: widget.media),
-            ],
+                return SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CurrentMedia(
+                          media: _media,
+                          onMediaUpdated: _refreshMediaDetails,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Lista de reviews
+                        ReviewListWidget(
+                          key: _reviewListKey,
+                          reviews: _filteredReviews,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+            },
           ),
-        ),
-      ),
 
       // Botão flutuante para adicionar resenha
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FormAddReviewScaffold(media: widget.media),
-            ),
-          );
+      floatingActionButton: _isLoading
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FormAddReviewScaffold(media: _media),
+                  ),
+                );
 
-          if (result == true) {
-            // Atualizar a lista de resenhas e a média
-            await _updateMediaAverageRating();
-            setState(() {
-              _reviewListKey = UniqueKey(); // Força a reconstrução da lista de resenhas
-            });
-          }
-        },
-        backgroundColor: primaryColorLight,
-        icon: const Icon(Icons.add),
-        label: const Text('Adicionar Resenha'),
-      ),
+                if (result == true) {
+                  await _refreshMediaDetails();
+                }
+              },
+              backgroundColor: primaryColorLight,
+              icon: const Icon(Icons.add),
+              label: const Text('Adicionar Resenha'),
+            ),
     );
   }
 }
 
-
 class CurrentMedia extends StatelessWidget {
   final Media media;
+  final VoidCallback? onMediaUpdated;
 
-  const CurrentMedia({required this.media, super.key});
+  const CurrentMedia({required this.media, this.onMediaUpdated, super.key});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Ícone como imagem principal
         Container(
           width: 100,
           height: 100,
@@ -927,20 +947,33 @@ class CurrentMedia extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
-        // Título
-        Text(
-          media.title,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+
+        RichText(
           textAlign: TextAlign.center,
+          text: TextSpan(
+            text: media.title,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+            children: [
+              TextSpan(
+                text: ' #${media.id}',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.normal,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
         ),
         
         // Média de avaliações
         const SizedBox(height: 8),
         Row(
-          mainAxisSize: MainAxisSize.min, // Importante para evitar overflow
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.star, color: Colors.amber),
             SizedBox(width: 4),
@@ -961,13 +994,24 @@ class CurrentMedia extends StatelessWidget {
         const SizedBox(height: 16),
 
         // Row of buttons
-        Wrap( // Usando Wrap em vez de Row para evitar overflow
+        Wrap(
           alignment: WrapAlignment.center,
           spacing: 8,
           children: [
             ElevatedButton.icon(
-              onPressed: () {
-                // Lógica para editar a mídia
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FormAddMediaScaffold(media: media),
+                  ),
+                );
+
+                if (result == true) {
+                  if (onMediaUpdated != null) {
+                    onMediaUpdated!();
+                  }
+                }
               },
               icon: const Icon(Icons.edit),
               label: const Text('Editar'),
@@ -982,7 +1026,7 @@ class CurrentMedia extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Mídia deletada com sucesso!')),
                     );
-                    Navigator.pop(context); // Volta para a lista de mídias
+                    Navigator.pop(context);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Erro ao deletar mídia: ${response.statusCode}')),

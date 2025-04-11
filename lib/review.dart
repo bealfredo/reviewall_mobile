@@ -7,45 +7,21 @@ import 'package:reviewall_mobile/media.dart';
 
 import 'package:reviewall_mobile/reviewall_app.dart';
 
-class ReviewListWidget extends StatefulWidget {
-  final Media media;
+class ReviewListWidget extends StatelessWidget {
+  final List<Review> reviews;
 
-  const ReviewListWidget({super.key, required this.media});
-
-  @override
-  State<ReviewListWidget> createState() => _ReviewListWidgetState();
-}
-
-class _ReviewListWidgetState extends State<ReviewListWidget> {
-  Future<List<Review>> fetchAndFilterReviews() async {
-    try {
-      List<Review> reviews = await getReviews();
-      return reviews
-        .where((review) => review.mediaId == widget.media.id)
-        .toList()
-        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    } catch (e) {
-      print("Erro ao buscar e filtrar resenhas: $e");
-      return [];
-    }
-  }
+  const ReviewListWidget({super.key, required this.reviews});
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Review>>(
-      future: fetchAndFilterReviews(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Erro ao carregar resenhas'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('Nenhuma resenha encontrada para esta mídia'));
-        } else {
-          return ReviewList(reviews: snapshot.data!);
-        }
-      },
-    );
+    if (reviews.isEmpty) {
+      return Center(child: Text('Nenhuma resenha encontrada para esta mídia'));
+    } else {
+      // Ordena as resenhas em ordem decrescente pela data de criação
+      List<Review> sortedReviews = List.from(reviews)
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return ReviewList(reviews: sortedReviews);
+    }
   }
 }
 
