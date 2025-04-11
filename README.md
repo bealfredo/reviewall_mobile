@@ -1,16 +1,58 @@
 # reviewall_mobile
 
-A new Flutter project.
+Aplicativo Flutter para gerenciar e avaliar diversos tipos de mídias, como filmes, séries, livros, jogos e muito mais.
 
-## Getting Started
+## Sobre o AplicativoVisualizar uma lista de mídias com detalhes como título, criador, tipo, gêneros, 
 
-This project is a starting point for a Flutter application.
+Este aplicativo foi desenvolvido como parte do curso de **PROGRAMACAO PARA DISPOSITIVOS MOVEIS I** na **UNIVERSIDADE ESTADUAL DO TOCANTINS** pelo aluno **ALFREDO DE SOUZA AGUIAR NETO**.
+O aplicativo permite aos usuários:
+- Adicionar, editar e excluir entradas de mídias.
+- Adicionar resenhas para cada mídia, incluindo notas e comentários.
+- Visualizar uma lista de mídias com detalhes como título, criador, tipo, gêneros, sinopse, data de lançamento e avaliação média, assim como uma lista de resenhas associadas a cada mídia.
 
-A few resources to get you started if this is your first Flutter project:
+## Integração com API
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+O aplicativo utiliza o [MockAPI](https://mockapi.io/projects/67e6f0a56530dbd31111f8e3) para criar uma API online para gerenciar mídias e resenhas. Os seguintes recursos e seus atributos são utilizados:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Recurso de Mídia (`/media`)
+- **id**: Identificador único da mídia (string).
+- **createdAt**: Data e hora em que a mídia foi criada (formato ISO 8601).
+- **title**: Título da mídia (string).
+- **creator**: Criador da mídia (string).
+- **type**: Tipo da mídia (ex.: "Filme", "Série", "Livro") (string).
+- **genre**: Lista de gêneros associados à mídia (array de strings).
+- **synopsis**: Breve descrição da mídia (string).
+- **releaseDate**: Data de lançamento da mídia (formato ISO 8601).
+
+### Recurso de Resenha (`/review`)
+- **id**: Identificador único da resenha (string).
+- **createdAt**: Data e hora em que a resenha foi criada (formato ISO 8601).
+- **user**: Nome do usuário que escreveu a resenha (string).
+- **rating**: Nota atribuída à mídia (double, máximo 10).
+- **comment**: Comentário ou opinião sobre a mídia (string).
+- **mediaId**: ID da mídia associada à resenha (string).
+
+
+### Imagens de Tela
+
+<p align="center">
+  <img src="assets/image.png" alt="Screenshot 1" width="45%">
+  <img src="assets/image-1.png" alt="Screenshot 2" width="45%">
+</p>
+<p align="center">
+  <img src="assets/image-2.png" alt="Screenshot 3" width="45%">
+  <img src="assets/image-3.png" alt="Screenshot 4" width="45%">
+</p>
+<p align="center">
+  <img src="assets/image-4.png" alt="Screenshot 5" width="45%">
+</p>
+
+## Como Começar
+
+Este projeto é um ponto de partida para um aplicativo Flutter.
+
+Alguns recursos para começar se este for seu primeiro projeto Flutter:
+- [Lab: Escreva seu primeiro aplicativo Flutter](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Exemplos úteis de Flutter](https://docs.flutter.dev/cookbook)
+
+Para obter ajuda no desenvolvimento com Flutter, acesse a [documentação online](https://docs.flutter.dev/), que oferece tutoriais, exemplos, orientações sobre desenvolvimento móvel e uma referência completa da API.
