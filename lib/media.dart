@@ -180,7 +180,6 @@ class MediaList extends StatelessWidget {
   Future<List<Media>> fetchMedias() async {
     try {
       List<Media> medias = await getMedias();
-      // Ordena as mídias pela data de criação em ordem decrescente
       medias.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return medias;
     } catch (e) {
@@ -203,6 +202,7 @@ class MediaList extends StatelessWidget {
         } else {
           return ListView.builder(
             itemCount: snapshot.data!.length,
+            padding: EdgeInsets.only(bottom: 80),
             itemBuilder: (context, index) {
               return MediaListItem(snapshot.data![index]);
             },
@@ -388,7 +388,7 @@ class FormAddMediaScaffold extends StatefulWidget {
   const FormAddMediaScaffold({super.key});
 
   @override
-  _FormAddMediaScaffoldState createState() => _FormAddMediaScaffoldState();
+  State<FormAddMediaScaffold> createState() => _FormAddMediaScaffoldState();
 }
 
 class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
@@ -402,7 +402,7 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
   final _synopsisController = TextEditingController();
   final _releaseDateController = TextEditingController();
   
-  List<String> _generosSelecionados = [];
+  final List<String> _generosSelecionados = [];
   DateTime? _dataLancamento;
   bool _isLoading = false;
 
@@ -723,26 +723,23 @@ class _FormAddMediaScaffoldState extends State<FormAddMediaScaffold> {
 
 
 // Visualizar mídia
-class MediaDetailScaffold extends StatelessWidget {
+class MediaDetailScaffold extends StatefulWidget {
   final Media media;
 
   const MediaDetailScaffold(this.media, {super.key});
 
-  Future<List<String>> fetchReviews() async {
-    // Simulação de busca de reviews
-    await Future.delayed(const Duration(seconds: 1));
-    return [
-      'Ótimo filme, recomendo!',
-      'A história é incrível, mas o final poderia ser melhor.',
-      'Um dos melhores que já assisti!',
-    ];
-  }
+  @override
+  State<MediaDetailScaffold> createState() => _MediaDetailScaffoldState();
+}
+
+class _MediaDetailScaffoldState extends State<MediaDetailScaffold> {
+  Key _reviewListKey = UniqueKey();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(media.title),
+        title: Text(widget.media.title),
         backgroundColor: primaryColor,
       ),
       body: SingleChildScrollView(
@@ -751,11 +748,11 @@ class MediaDetailScaffold extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CurrentMedia(media: media),
+              CurrentMedia(media: widget.media),
               const SizedBox(height: 16),
 
               // Lista de reviews
-              ReviewListWidget(mediaId: media.id),
+              ReviewListWidget(key: _reviewListKey, media: widget.media),
             ],
           ),
         ),
@@ -763,17 +760,24 @@ class MediaDetailScaffold extends StatelessWidget {
 
       // Add Review button
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final result = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const FormAddReviewScaffold()),
+            MaterialPageRoute(
+              builder: (context) => FormAddReviewScaffold(media: widget.media),
+            ),
           );
+
+          if (result == true) {
+            setState(() {
+              _reviewListKey = UniqueKey();
+            });
+          }
         },
         backgroundColor: primaryColorLight,
         icon: const Icon(Icons.add),
         label: const Text('Adicionar Resenha'),
       ),
-      
     );
   }
 }
