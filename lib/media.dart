@@ -237,14 +237,14 @@ class MediaListItem extends StatelessWidget {
         trailing: IconButton(
           icon: Icon(Icons.arrow_forward),
           onPressed: () async {
-            final Media? result = await Navigator.push(
+            final bool? result = await Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => MediaDetailScaffold(media.id),
+              builder: (context) => MediaDetailScaffold(media.id),
               ),
             );
 
-            if (result != null && result.averageRating != media.averageRating) {
+            if (result == true) {
               onMediaUpdated();
             }
           },
@@ -847,7 +847,7 @@ class _MediaDetailScaffoldState extends State<MediaDetailScaffold> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context, _media);
+            Navigator.pop(context, false);
           },
         ),
       ),
@@ -874,7 +874,12 @@ class _MediaDetailScaffoldState extends State<MediaDetailScaffold> {
                       children: [
                         CurrentMedia(
                           media: _media,
+                          filteredReviews: _filteredReviews,
                           onMediaUpdated: _refreshMediaDetails,
+                          onDeleted: () {
+                            // navigate back to the previous screen
+                            Navigator.pop(context, true);
+                          }
                         ),
                         const SizedBox(height: 16),
 
@@ -917,9 +922,12 @@ class _MediaDetailScaffoldState extends State<MediaDetailScaffold> {
 
 class CurrentMedia extends StatelessWidget {
   final Media media;
+  final List<Review> filteredReviews;
   final VoidCallback? onMediaUpdated;
+  final VoidCallback? onDeleted;
+  
 
-  const CurrentMedia({required this.media, this.onMediaUpdated, super.key});
+  const CurrentMedia({required this.media, required this.filteredReviews, this.onMediaUpdated, this.onDeleted, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -1020,19 +1028,66 @@ class CurrentMedia extends StatelessWidget {
             const SizedBox(width: 8),
 
             ElevatedButton.icon(
-              onPressed: () {
-                deleteMedia(media.id).then((response) {
+              onPressed: () async {
+                // Verificação de resenhas existente
+                if (filteredReviews.isNotEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Não é possível deletar a mídia com resenhas associadas')),
+                  );
+                  return;
+                }
+
+                final currentContext = context;
+                
+                final shouldDelete = await showDialog<bool>(
+                  context: currentContext,
+                  builder: (dialogContext) => AlertDialog(
+                    title: Text('Confirmar exclusão'),
+                    content: Text('Deseja realmente excluir "${media.title}"?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(false),
+                        child: Text('Cancelar'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(true),
+                        style: TextButton.styleFrom(foregroundColor: Colors.red),
+                        child: Text('Excluir'),
+                      ),
+                    ],
+                  ),
+                );
+              
+                if (!currentContext.mounted) return;
+                if (shouldDelete != true) return;
+
+                try {
+                  ScaffoldMessenger.of(currentContext).showSnackBar(
+                    SnackBar(content: Text('Excluindo mídia...'), duration: Duration(seconds: 1)),
+                  );
+                  
+                  final response = await deleteMedia(media.id);
+                  
+                  if (!currentContext.mounted) return;
+                  
                   if (response.statusCode == 200) {
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    ScaffoldMessenger.of(currentContext).showSnackBar(
                       SnackBar(content: Text('Mídia deletada com sucesso!')),
                     );
-                    Navigator.pop(context);
+                    
+                    Navigator.of(currentContext).pop(true);
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    ScaffoldMessenger.of(currentContext).showSnackBar(
                       SnackBar(content: Text('Erro ao deletar mídia: ${response.statusCode}')),
                     );
                   }
-                });
+                } catch (e) {
+                  if (!currentContext.mounted) return;
+                  
+                  ScaffoldMessenger.of(currentContext).showSnackBar(
+                    SnackBar(content: Text('Erro ao deletar mídia: $e')),
+                  );
+                }
               },
               icon: const Icon(Icons.delete),
               label: const Text('Deletar'),
