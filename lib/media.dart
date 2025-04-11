@@ -174,49 +174,112 @@ Future<http.Response> deleteMedia(String id) async {
   return response;
 }
 
-class MediaList extends StatelessWidget {
+class MediaList extends StatefulWidget {
   const MediaList({super.key});
+
+  @override
+  State<MediaList> createState() => _MediaListState();
+}
+
+class _MediaListState extends State<MediaList> {
+  late Future<List<Media>> _mediasFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _mediasFuture = fetchMedias();
+  }
 
   Future<List<Media>> fetchMedias() async {
     try {
+      // Obter a lista de mídias
       List<Media> medias = await getMedias();
+
+      // Obter todas as resenhas de uma vez só
+      List<Review> allReviews = await getReviews();
+
+      // Para cada mídia, calcular a média das avaliações
+      for (var media in medias) {
+        // Filtrar as resenhas para esta mídia específica
+        var mediaReviews = allReviews.where((review) => review.mediaId == media.id).toList();
+
+        if (mediaReviews.isNotEmpty) {
+          // Calcular a média
+          double sum = mediaReviews.fold(0.0, (sum, review) => sum + review.rating);
+          media.averageRating = sum / mediaReviews.length;
+        } else {
+          media.averageRating = 0.0; // Sem avaliações
+        }
+      }
+
+      // Ordenar por data de criação
       medias.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return medias;
     } catch (e) {
-      print("Erro ao buscar mídias: $e");
+      print("Erro ao buscar mídias e calcular médias: $e");
       return [];
     }
   }
 
+  void _reloadMediaList() {
+    setState(() {
+      _mediasFuture = fetchMedias();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Media>>(
-      future: fetchMedias(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Erro ao carregar mídias'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('Nenhuma mídia encontrada'));
-        } else {
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            padding: EdgeInsets.only(bottom: 80),
-            itemBuilder: (context, index) {
-              return MediaListItem(snapshot.data![index]);
+    return Column(
+      children: [
+        // Botão de recarregar no topo
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ElevatedButton.icon(
+            onPressed: _reloadMediaList,
+            icon: const Icon(Icons.refresh),
+            label: const Text('Recarregar'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.grey[200],
+              foregroundColor: Colors.black,
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            ),
+          ),
+        ),
+        Expanded(
+          child: FutureBuilder<List<Media>>(
+            future: _mediasFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Erro ao carregar mídias'));
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Center(child: Text('Nenhuma mídia encontrada'));
+              } else {
+                return ListView.builder(
+                  itemCount: snapshot.data!.length,
+                  padding: EdgeInsets.only(bottom: 80),
+                  itemBuilder: (context, index) {
+                    return MediaListItem(
+                      snapshot.data![index],
+                      onMediaUpdated: _reloadMediaList,
+                    );
+                  },
+                );
+              }
             },
-          );
-        }
-      },
+          ),
+        ),
+      ],
     );
   }
 }
 
 class MediaListItem extends StatelessWidget {
   final Media media;
+  final VoidCallback onMediaUpdated;
 
-  const MediaListItem(this.media, {super.key});
+  const MediaListItem(this.media, {required this.onMediaUpdated, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -237,7 +300,6 @@ class MediaListItem extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Text('Criador: ${media.creator}'),
             Text('Tipo: ${media.type}'),
             Text('Ano de Lançamento: ${media.releaseDate.year}'),
             Wrap(
@@ -252,16 +314,32 @@ class MediaListItem extends StatelessWidget {
             ),
           ],
         ),
-        leading: Icon(media.icon, size: 40),
+        leading: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(media.icon, size: 30),
+            Text(
+              media.averageRating > 0 ? media.averageRating.toStringAsFixed(1) : "N/A",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
         trailing: IconButton(
           icon: Icon(Icons.arrow_forward),
-          onPressed: () {
-            Navigator.push(
+          onPressed: () async {
+            final Media result = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => MediaDetailScaffold(media),
               ),
             );
+
+            if (result.averageRating != media.averageRating) {
+              onMediaUpdated();
+            }
           },
         ),
       ),
@@ -280,7 +358,8 @@ class Media {
   String synopsis;
   DateTime releaseDate;
   IconData icon;
-
+  double averageRating;
+  
   Media({
     required this.id,
     required this.createdAt,
@@ -290,6 +369,7 @@ class Media {
     required this.genre,
     required this.synopsis,
     required this.releaseDate,
+    this.averageRating = 0.0,
   }) : icon = _getIconForType(type);
 
   factory Media.fromJson(Map<String, dynamic> json) {
@@ -735,12 +815,42 @@ class MediaDetailScaffold extends StatefulWidget {
 class _MediaDetailScaffoldState extends State<MediaDetailScaffold> {
   Key _reviewListKey = UniqueKey();
 
+  Future<void> _updateMediaAverageRating() async {
+    try {
+      // Obter todas as resenhas
+      List<Review> reviews = await getReviews();
+
+      // Filtrar as resenhas para esta mídia específica
+      var mediaReviews = reviews.where((review) => review.mediaId == widget.media.id).toList();
+
+      // Calcular a média das avaliações
+      if (mediaReviews.isNotEmpty) {
+        double sum = mediaReviews.fold(0.0, (sum, review) => sum + review.rating);
+        setState(() {
+          widget.media.averageRating = sum / mediaReviews.length;
+        });
+      } else {
+        setState(() {
+          widget.media.averageRating = 0.0; // Sem avaliações
+        });
+      }
+    } catch (e) {
+      print("Erro ao atualizar a média das avaliações: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.media.title),
         backgroundColor: primaryColor,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context, widget.media);
+          },
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -758,7 +868,7 @@ class _MediaDetailScaffoldState extends State<MediaDetailScaffold> {
         ),
       ),
 
-      // Add Review button
+      // Botão flutuante para adicionar resenha
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final result = await Navigator.push(
@@ -769,8 +879,10 @@ class _MediaDetailScaffoldState extends State<MediaDetailScaffold> {
           );
 
           if (result == true) {
+            // Atualizar a lista de resenhas e a média
+            await _updateMediaAverageRating();
             setState(() {
-              _reviewListKey = UniqueKey();
+              _reviewListKey = UniqueKey(); // Força a reconstrução da lista de resenhas
             });
           }
         },
@@ -791,51 +903,67 @@ class CurrentMedia extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // Ícone como imagem principal
-        Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 4,
-                      offset: Offset(2, 2),
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  media.icon,
-                  size: 60,
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Título
-              Text(
-                media.title,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
+        Container(
+          width: 100,
+          height: 100,
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 4,
+                offset: Offset(2, 2),
               ),
             ],
+          ),
+          child: Icon(
+            media.icon,
+            size: 60,
           ),
         ),
         const SizedBox(height: 16),
 
-        // Row of buttons
+        // Título
+        Text(
+          media.title,
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        
+        // Média de avaliações
+        const SizedBox(height: 8),
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min, // Importante para evitar overflow
+          children: [
+            Icon(Icons.star, color: Colors.amber),
+            SizedBox(width: 4),
+            Text(
+              media.averageRating > 0 
+                ? "${media.averageRating.toStringAsFixed(1)}/10"
+                : "Sem avaliações",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: media.averageRating >= 7 ? Colors.green : 
+                      media.averageRating >= 4 ? Colors.amber : 
+                      media.averageRating > 0 ? Colors.red : Colors.grey,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Row of buttons
+        Wrap( // Usando Wrap em vez de Row para evitar overflow
+          alignment: WrapAlignment.center,
+          spacing: 8,
           children: [
             ElevatedButton.icon(
               onPressed: () {
