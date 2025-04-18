@@ -1,5 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:reviewall_mobile/reviewall_app.dart';
+import 'package:reviewall_mobile/screeens/home/home_screen.dart';
+import 'package:reviewall_mobile/screeens/media/media_list_screen.dart';
+
+const baseUrlApi = 'https://67e6f0a56530dbd31111f8e2.mockapi.io/reviewall'; 
+
+const Color primaryGray = Color(0xFF333333); 
+const Color secondaryGray = Color(0xFF4D4D4D);
+const Color accentGray = Color(0xFF666666);
+const Color lightGray = Color(0xFFAAAAAA);
+const Color backgroundColor = Color(0xFF222222);
+
+
+const primaryColor = primaryGray;
+const primaryColorLight = secondaryGray;
+const secondaryColor = accentGray;
+const secondaryColorLight = lightGray;
+const fontColor = Colors.white;
+
 
 void main() {
   runApp(NavigationBarApp());
@@ -54,47 +71,10 @@ class _NavigationExampleState extends State<NavigationExample> {
       body:
           <Widget>[
             /// Home page
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                    colors: [
-                    Theme.of(context).colorScheme.primary,
-                    primaryColor,
-                  ],
-                ),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'ReviewAll',
-                      style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                        'Avalie tudo o que você assiste, lê, joga e ouve',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            HomeScreen(),
 
             /// Mídias page
-            MediaTab(),
-
-            // /// Sobre page
-            // AboutTab(),
+            MediaListScaffold(),
 
           ][currentPageIndex],
     );

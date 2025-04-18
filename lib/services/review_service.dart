@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:reviewall_mobile/models/review_model.dart';
 
-import 'package:reviewall_mobile/reviewall_app.dart';
+import 'package:reviewall_mobile/main.dart';
 
 
 Future<dynamic> getReviews() async {

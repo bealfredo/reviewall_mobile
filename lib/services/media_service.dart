@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:reviewall_mobile/reviewall_app.dart';
+import 'package:reviewall_mobile/main.dart';
 import 'package:reviewall_mobile/models/media_model.dart';
 
 Future<dynamic> getMedias() async {
