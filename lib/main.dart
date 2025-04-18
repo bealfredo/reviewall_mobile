@@ -10,21 +10,17 @@ const Color accentGray = Color(0xFF666666);
 const Color lightGray = Color(0xFFAAAAAA);
 const Color backgroundColor = Color(0xFF222222);
 
-
 const primaryColor = primaryGray;
 const primaryColorLight = secondaryGray;
 const secondaryColor = accentGray;
 const secondaryColorLight = lightGray;
 const fontColor = Colors.white;
 
-
 void main() {
   runApp(NavigationBarApp());
 }
 
-
 // Navigation
-
 class NavigationBarApp extends StatelessWidget {
   const NavigationBarApp({super.key});
 
