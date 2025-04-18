@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:reviewall_mobile/media.dart';
+import 'package:reviewall_mobile/models/media_model.dart';
+import 'package:reviewall_mobile/models/review_model.dart';
 
 import 'package:reviewall_mobile/reviewall_app.dart';
+import 'package:reviewall_mobile/services/review_service.dart';
 
 class ReviewListWidget extends StatelessWidget {
   final List<Review> reviews;
@@ -24,26 +26,6 @@ class ReviewListWidget extends StatelessWidget {
       return ReviewList(reviews: sortedReviews, onReviewDeleted: onReviewDeleted);
     }
   }
-}
-
-Future<dynamic> getReviews() async {
-  var url = Uri.parse('$baseUrlApi/review');
-
-  var response = await http.get(url);
-
-  if (response.statusCode == 200) {
-    var data = json.decode(utf8.decode(response.bodyBytes));
-    List<Review> reviews = (data as List).map((item) => Review.fromJson(item)).toList();
-    return reviews;
-  } else {
-    print("Erro ao fazer a requisição: ${response.statusCode}");
-  }
-}
-
-Future<http.Response> deleteReview(String id) async {
-  var url = Uri.parse('$baseUrlApi/review/$id');
-  var response = await http.delete(url);
-  return response;
 }
 
 class ReviewList extends StatelessWidget {
@@ -209,11 +191,7 @@ class _FormAddReviewScaffoldState extends State<FormAddReviewScaffold> {
           'createdAt': DateTime.now().toIso8601String(), // Gera a data atual automaticamente
         };
 
-        var response = await http.post(
-          Uri.parse('$baseUrlApi/review'),
-          body: json.encode(review),
-          headers: {'Content-Type': 'application/json'},
-        );
+        var response = await postReview(review);
 
         if (response.statusCode == 201) {
           if (mounted) {
@@ -396,42 +374,3 @@ class _FormAddReviewScaffoldState extends State<FormAddReviewScaffold> {
   }
 }
 
-class Review {
-  String id;
-  DateTime createdAt;
-  String user; 
-  double rating;
-  String comment;
-  String mediaId;
-
-  Review({
-    required this.id,
-    required this.createdAt,
-    required this.user,
-    required this.rating,
-    required this.comment,
-    required this.mediaId,
-  });
-
-  factory Review.fromJson(Map<String, dynamic> json) {
-    return Review(
-      id: json['id'],
-      createdAt: DateTime.parse(json['createdAt']),
-      user: json['user'],
-      rating: json['rating'].toDouble(),
-      comment: json['comment'],
-      mediaId: json['mediaId'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'createdAt': createdAt.toIso8601String(),
-      'user': user,
-      'rating': rating,
-      'comment': comment,
-      'mediaId': mediaId,
-    };
-  }
-}
