@@ -58,3 +58,12 @@ Alguns recursos para começar se este for seu primeiro projeto Flutter:
 - [Cookbook: Exemplos úteis de Flutter](https://docs.flutter.dev/cookbook)
 
 Para obter ajuda no desenvolvimento com Flutter, acesse a [documentação online](https://docs.flutter.dev/), que oferece tutoriais, exemplos, orientações sobre desenvolvimento móvel e uma referência completa da API.
+
+
+<!-- Refatorar: 
+lib/
+├── components/    # Widgets reutilizáveis (botões, cards, list...)
+├── models/        # Representações de dados (ex: UserModel, ProductModel)
+├── screens/       # Telas do app (LoginScreen, HomeScreen...)
+├── services/      # Lógica de acesso à API, SharedPreferences, etc
+└── main.dart      # Ponto de entrada do app -->
